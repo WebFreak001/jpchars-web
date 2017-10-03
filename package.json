@@ -1,0 +1,6 @@
+{
+  "name": "jpchars-web",
+  "dependencies": {
+    "material-components-web": "^0.21.1"
+  }
+}

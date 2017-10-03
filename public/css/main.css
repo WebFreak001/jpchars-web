@@ -1,0 +1,169 @@
+/* Ensure layout covers the entire screen. */
+
+html {
+	height: 100%;
+}
+
+
+/* Place drawer and content side by side. */
+
+body {
+	display: flex;
+	flex-direction: row;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	min-height: 100%;
+	width: 100%;
+	background: #efefef;
+}
+
+
+/* Stack toolbar and main on top of each other. */
+
+body > .content {
+	display: inline-flex;
+	flex-direction: column;
+	flex-grow: 1;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+
+/* Place drawer above toolbar shadow. */
+
+.mdc-permanent-drawer {
+	z-index: 2;
+}
+
+
+/* Generic stuff */
+
+#views > .view {
+	display: none;
+}
+
+#views > .view.active {
+	display: block;
+}
+
+.mdc-textfield.invalid:after {
+	background-color: red !important;
+}
+
+.mdc-textfield.invalid > label {
+	color: red !important;
+}
+
+#score-dialog .details {
+	color: rgba(0, 0, 0, 0.87);
+}
+
+#score-dialog .grade {
+	float: left;
+	text-align: center;
+	margin-right: 8px;
+}
+
+#score-dialog .grade > .icon {
+	font-weight: 700;
+	font-size: 4em;
+	line-height: 1em;
+	text-shadow: 0px 0px 1px black, 0px 0px 1px black, 0px 0px 1px black, 0px 0px 1px black, 0px 0px 1px black, 0px 0px 1px black, 0px 0px 1px black, 0px 0px 1px black, 0px 0px 1px black;
+}
+
+#score-dialog .grade > .icon.s {
+	color: #ffd249;
+}
+
+#score-dialog .grade > .icon.a {
+	color: #2a92e0;
+}
+
+#score-dialog .grade > .icon.b {
+	color: #62c528;
+}
+
+#score-dialog .grade > .icon.c {
+	color: #cc9641;
+}
+
+#score-dialog .grade > .icon.d {
+	color: #b03931;
+}
+
+#score-dialog .grade > .icon.f {
+	color: black;
+	text-shadow: none;
+}
+
+#score-dialog .detail.correct:before {
+	content: "Correct: ";
+	display: inline;
+}
+
+#score-dialog .detail.wrong:before {
+	content: "Wrong: ";
+	display: inline;
+}
+
+figure.score {
+	background-color: white;
+	padding: 16px;
+}
+
+figure.score > canvas {
+	width: 100%;
+	height: 200px;
+}
+
+figure.score > figcaption > span.details {
+	color: rgba(0, 0, 0, 0.54);
+}
+
+
+/* Generic modules */
+
+.progress {
+	text-align: center;
+}
+
+.actions {
+	display: flex;
+}
+
+.actions button {
+	display: block;
+	flex-grow: 1;
+	margin: 8px;
+}
+
+.timelimit .mdc-linear-progress__bar {
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	-ms-transition: none !important;
+	transition: none !important;
+}
+
+.timelimit {
+	margin-bottom: 8px;
+}
+
+
+/* Kana module */
+
+.kana {
+	padding: 16px;
+	max-width: 400px;
+	margin: 16px auto;
+	background: white;
+}
+
+.kana .question {
+	text-align: center;
+	font-size: 4em;
+}
+
+.kana > .mdc-textfield {
+	width: 100%;
+}

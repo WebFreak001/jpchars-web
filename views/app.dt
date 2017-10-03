@@ -1,0 +1,71 @@
+doctype html
+html
+	head
+		title jpchars
+		link(rel="stylesheet", href="/material-components-web/dist/material-components-web.css")
+		link(rel="stylesheet", href="/css/main.css")
+		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
+		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
+	body
+		nav.mdc-permanent-drawer
+			.mdc-permanent-drawer__toolbar-spacer
+			.mdc-list-group
+				nav.mdc-list.modules
+					a.mdc-list-item.mdc-permanent-drawer--selected(href="#home", aria-controls="home", onclick="exitModule()")
+						i.material-icons.mdc-list-item__start-detail(aria-hidden="true") home
+						| Home
+					- foreach (mod; loadedModules)
+						- if (mod is null)
+							</nav>
+							hr.mdc-list-divider
+							<nav class="mdc-list modules">
+							- continue;
+						a.mdc-list-item(href="##{mod.id}", aria-controls=mod.id, onclick="loadModule('#{mod.id}')", title=mod.description("en"))
+							i.material-icons.mdc-list-item__start-detail(aria-hidden="true")= mod.icon
+							|= mod.name("en")
+		.content
+			.mdc-toolbar.mdc-elevation--z4
+				.mdc-toolbar__row
+					.mdc-toolbar__section.mdc-toolbar__section--align-start
+						//nav.mdc-tab-bar.mdc-tab-bar--indicator-accent#scoreTabs(role="tablist", data-mdc-auto-init="MDCTabBar")
+							a.mdc-tab.mdc-tab--active(role="tab", aria-controls="panel-1", href="#panel-1") Item One
+							a.mdc-tab(role="tab", aria-controls="panel-2", href="#panel-2") Item Two
+							a.mdc-tab(role="tab", aria-controls="panel-3", href="#panel-3") Item Three
+							span.mdc-tab-bar__indicator
+			main
+				section
+					#views
+						.view.active#home(role="tabpanel", aria-hidden="false")
+							- foreach (i, mod; loadedModules)
+								- if (!mod) continue;
+								figure.score.mdc-elevation--z5
+									canvas(id="score-" ~ mod.id)
+									figcaption= mod.name("en")
+										span.details
+						- foreach (i, mod; loadedModules)
+							- if (!mod) continue;
+							.view(id=mod.id, role="tabpanel", aria-hidden="true")
+								|!= mod.render("en")
+		aside.mdc-dialog#score-dialog(role="alertdialog", aria-hidden="true", aria-labelledby="score-dialog-label", aria-describedby="score-dialog-content")
+			.mdc-dialog__surface
+				header.mdc-dialog__header
+					h2.mdc-dialog__header__title#score-dialog-label Unit Finished!
+				section.mdc-dialog__body#score-dialog-content
+					.grade
+						.icon SS
+						.score 0%
+					.details Details go here
+				footer.mdc-dialog__footer
+					button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel Close
+			.mdc-dialog__backdrop
+		script(src="/material-components-web/dist/material-components-web.js")
+		script(src="/js/main.js")
+		script(src="/js/score.js")
+		- string[] ids;
+		- foreach (mod; loadedModules)
+			- if (!mod) continue;
+			- ids ~= mod.id;
+			- foreach (script; mod.scripts)
+				script(src=script)
+		- import vibe.data.json;
+		script loadScores(#{serializeToJson(ids)});
