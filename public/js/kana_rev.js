@@ -53,7 +53,7 @@ var kanaRevModule = {
 	},
 	setTimer: function () {
 		var self = this;
-		setTimelimit(this.page.querySelector(".mdc-linear-progress"), speedrun ? 1500 : 4000, function () {
+		setTimelimit(this.page.querySelector(".mdc-linear-progress"), speedrun ? 2500 : 9000, function () {
 			self.confirm();
 		});
 	},
