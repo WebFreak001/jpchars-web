@@ -82,8 +82,8 @@ var kanaRevModule = {
 		this.next(false);
 	},
 	abort: function () {
-		this.$.answer.value = "-";
-		this.confirm();
+		this.wrong++;
+		this.next();
 	}
 }
 
