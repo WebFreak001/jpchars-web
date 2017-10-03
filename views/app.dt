@@ -1,45 +1,51 @@
 doctype html
 html
 	head
+		meta(charset="utf-8")
+		meta(http-equiv="x-ua-compatible", content="ie=edge")
+		meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
 		title jpchars
 		link(rel="stylesheet", href="/material-components-web/dist/material-components-web.css")
 		link(rel="stylesheet", href="/css/main.css")
 		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
 		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 	body
-		nav.mdc-permanent-drawer
-			.mdc-permanent-drawer__toolbar-spacer
-			.mdc-list-group
-				nav.mdc-list.modules
-					a.mdc-list-item.mdc-permanent-drawer--selected(href="#home", aria-controls="home", onclick="exitModule()")
-						i.material-icons.mdc-list-item__start-detail(aria-hidden="true") home
-						| Home
-					- foreach (mod; loadedModules)
-						- if (mod is null)
-							</nav>
-							hr.mdc-list-divider
-							<nav class="mdc-list modules">
-							- continue;
-						a.mdc-list-item(href="##{mod.id}", aria-controls=mod.id, onclick="loadModule('#{mod.id}')", title=mod.description("en"))
-							i.material-icons.mdc-list-item__start-detail(aria-hidden="true")= mod.icon
-							|= mod.name("en")
-				nav.mdc-list
-					label.mdc-list-item
-						.mdc-switch.mdc-list-item__start-detail
-							input.mdc-switch__native-control#speedrun(type="checkbox", onchange="speedrun = this.checked")
-							.mdc-switch__background
-								.mdc-switch__knob
-						| Speedrun Mode
-					label.mdc-list-item
-						.mdc-switch.mdc-list-item__start-detail
-							input.mdc-switch__native-control#timers(type="checkbox", checked, onchange="timersEnabled = this.checked; if (!this.checked) pauseTimelimit()")
-							.mdc-switch__background
-								.mdc-switch__knob
-						| Timers
+		aside.mdc-persistent-drawer
+			nav.mdc-persistent-drawer__drawer
+				.mdc-persistent-drawer__toolbar-spacer
+				.mdc-list-group
+					nav.mdc-list.modules
+						a.mdc-list-item.mdc-permanent-drawer--selected(href="#home", aria-controls="home", onclick="exitModule()")
+							i.material-icons.mdc-list-item__start-detail(aria-hidden="true") home
+							| Home
+						- foreach (mod; loadedModules)
+							- if (mod is null)
+								</nav>
+								hr.mdc-list-divider
+								<nav class="mdc-list modules">
+								- continue;
+							a.mdc-list-item(href="##{mod.id}", aria-controls=mod.id, onclick="loadModule('#{mod.id}')", title=mod.description("en"))
+								i.material-icons.mdc-list-item__start-detail(aria-hidden="true")= mod.icon
+								|= mod.name("en")
+					nav.mdc-list
+						label.mdc-list-item
+							.mdc-switch.mdc-list-item__start-detail
+								input.mdc-switch__native-control#speedrun(type="checkbox", onchange="speedrun = this.checked")
+								.mdc-switch__background
+									.mdc-switch__knob
+							| Speedrun Mode
+						label.mdc-list-item
+							.mdc-switch.mdc-list-item__start-detail
+								input.mdc-switch__native-control#timers(type="checkbox", checked, onchange="timersEnabled = this.checked; if (!this.checked) pauseTimelimit()")
+								.mdc-switch__background
+									.mdc-switch__knob
+							| Timers
 		.content
 			.mdc-toolbar.mdc-elevation--z4
 				.mdc-toolbar__row
 					.mdc-toolbar__section.mdc-toolbar__section--align-start
+						button.material-icons.mdc-toolbar__icon--menu menu
+						span.mdc-toolbar__title jpchars-web
 						//nav.mdc-tab-bar.mdc-tab-bar--indicator-accent#scoreTabs(role="tablist", data-mdc-auto-init="MDCTabBar")
 							a.mdc-tab.mdc-tab--active(role="tab", aria-controls="panel-1", href="#panel-1") Item One
 							a.mdc-tab(role="tab", aria-controls="panel-2", href="#panel-2") Item Two

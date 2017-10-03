@@ -178,6 +178,12 @@ function putScore(id, obj) {
 
 window.onload = function () {
 	mdc.autoInit();
+	var drawer = new mdc.drawer.MDCPersistentDrawer(document.querySelector(".mdc-persistent-drawer"));
+	drawer.open = window.innerWidth > 600;
+	document.querySelector(".mdc-toolbar__icon--menu").addEventListener("click", function () {
+		drawer.open = !drawer.open;
+	});
+
 	document.querySelectorAll('.mdc-button').forEach(function (btn) {
 		mdc.ripple.MDCRipple.attachTo(btn);
 	})
