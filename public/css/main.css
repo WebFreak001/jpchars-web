@@ -167,3 +167,8 @@ figure.score > figcaption > span.details {
 .kana > .mdc-textfield {
 	width: 100%;
 }
+
+.kana canvas.paintarea {
+	display: block;
+	margin: auto;
+}

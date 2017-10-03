@@ -47,7 +47,7 @@ class Kana : IModule
 
 	string[] scripts() const @property
 	{
-		return ["/js/kana.js"];
+		return ["/js/kana_common.js"] ~ (reverse ? ["/js/kana_rev.js"] : ["/js/kana.js"]);
 	}
 
 	override string name(string language) const @property
@@ -85,14 +85,17 @@ class Kana : IModule
 			),
 			div.progress("0/0"),
 			div.question("?"),
-			div(class_="mdc-textfield",
-				input(type="text", class_="answer mdc-textfield__input", attr!"id"=(this.id ~ "_input")),
-				label(attr!"for"=(this.id ~ "_input"), class_="mdc-textfield__label", "Representation"),
-				div(class_="mdc-textfield__bottom-line", " ")
-			),
+			reverse ?
+					div.area(" ")
+					:
+					div(class_="mdc-textfield",
+						input(type="text", class_="answer mdc-textfield__input", attr!"id"=(this.id ~ "_input")),
+						label(attr!"for"=(this.id ~ "_input"), class_="mdc-textfield__label", "Representation"),
+						div(class_="mdc-textfield__bottom-line", " ")
+					),
 			div.actions(
-				button(class_="confirm mdc-button", "Confirm"),
-				button(class_="skip mdc-button secondary-text-button", "Skip"),
+				button(attr!"confirm-text"="Confirm", attr!"correct-text"="Correct", class_="confirm mdc-button", "Confirm"),
+				button(attr!"skip-text"="Skip", attr!"wrong-text"="Wrong", class_="skip mdc-button secondary-text-button", "Skip"),
 				button(class_="abort mdc-button secondary-text-button", "Give Up")
 			)
 		).toString;
