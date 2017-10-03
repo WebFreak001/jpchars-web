@@ -80,11 +80,15 @@ html
 		script(src="/material-components-web/dist/material-components-web.js")
 		script(src="/js/main.js")
 		script(src="/js/score.js")
+		- import std.algorithm;
 		- string[] ids;
+		- string[] addedScripts;
 		- foreach (mod; loadedModules)
 			- if (!mod) continue;
 			- ids ~= mod.id;
 			- foreach (script; mod.scripts)
+				- if (addedScripts.canFind(script)) continue;
+				- addedScripts ~= script;
 				script(src=script)
 		- import vibe.data.json;
 		script loadScores(#{serializeToJson(ids)});
