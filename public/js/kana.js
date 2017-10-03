@@ -118,7 +118,7 @@ var kanaModule = {
 	},
 	setTimer: function () {
 		var self = this;
-		setTimelimit(this.page.querySelector(".mdc-linear-progress"), 1500, function () {
+		setTimelimit(this.page.querySelector(".mdc-linear-progress"), speedrun ? 1500 : 4000, function () {
 			if (!self.$.answer.value.trim())
 				self.$.answer.value = "-";
 			self.timeoutTime = new Date();

@@ -23,6 +23,9 @@ var modules = {};
 var activeModule;
 var unsaved;
 
+var speedrun = false;
+var timersEnabled = true;
+
 function loadModule(id) {
 	if (unloadModule()) {
 		activeModule = id;
@@ -131,6 +134,8 @@ var timelimitRemaining;
 var timelimitMax;
 
 function setTimelimit(elem, ms, cb) {
+	if (!timersEnabled)
+		return;
 	timelimitElement = new mdc.linearProgress.MDCLinearProgress(elem);
 	timelimitElement.progress = 0;
 	timelimitMax = timelimitRemaining = ms;

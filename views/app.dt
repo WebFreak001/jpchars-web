@@ -23,6 +23,19 @@ html
 						a.mdc-list-item(href="##{mod.id}", aria-controls=mod.id, onclick="loadModule('#{mod.id}')", title=mod.description("en"))
 							i.material-icons.mdc-list-item__start-detail(aria-hidden="true")= mod.icon
 							|= mod.name("en")
+				nav.mdc-list
+					label.mdc-list-item
+						.mdc-switch.mdc-list-item__start-detail
+							input.mdc-switch__native-control#speedrun(type="checkbox", onchange="speedrun = this.checked")
+							.mdc-switch__background
+								.mdc-switch__knob
+						| Speedrun Mode
+					label.mdc-list-item
+						.mdc-switch.mdc-list-item__start-detail
+							input.mdc-switch__native-control#timers(type="checkbox", checked, onchange="timersEnabled = this.checked; if (!this.checked) pauseTimelimit()")
+							.mdc-switch__background
+								.mdc-switch__knob
+						| Timers
 		.content
 			.mdc-toolbar.mdc-elevation--z4
 				.mdc-toolbar__row
