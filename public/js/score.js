@@ -13,6 +13,11 @@ function loadScores(ids, save) {
 			}
 			canvas.parentElement.style.display = "block";
 			var scores = JSON.parse(log);
+			scores.sort(function (a, b) {
+				if (a.at == b.at)
+					return 0;
+				return a.at < b.at ? -1 : 1;
+			})
 			loadScore(canvas, scores);
 			var n = 0;
 			scores.forEach(function (score) {
