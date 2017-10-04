@@ -106,11 +106,17 @@ function makeDrawCanvas(w, h) {
 			if (canvas.setCapture)
 				canvas.setCapture();
 			mouseDown = true;
-			draw(e.offsetX || e.layerX, e.offsetY || e.layerY, true);
+			var t = e.targetTouches.length > 0 ? e.targetTouches[0] : e.touches[0];
+			var x = t.pageX - canvas.offsetLeft;
+			var y = t.pageY - canvas.offsetTop;
+			draw(x, y, true);
 		};
 		canvas.ontouchmove = function (e) {
 			e.preventDefault();
-			draw(e.offsetX || e.layerX, e.offsetY || e.layerY);
+			var t = e.targetTouches.length > 0 ? e.targetTouches[0] : e.touches[0];
+			var x = t.pageX - canvas.offsetLeft;
+			var y = t.pageY - canvas.offsetTop;
+			draw(x, y);
 		};
 		canvas.ontouchend = function (e) {
 			mouseDown = false;
