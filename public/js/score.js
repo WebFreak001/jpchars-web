@@ -1,7 +1,8 @@
 var loadedScores = [];
 
-function loadScores(ids) {
-	loadedScores = ids;
+function loadScores(ids, save) {
+	if (save !== false)
+		loadedScores = ids;
 	ids.forEach(function (id) {
 		try {
 			var canvas = document.getElementById("score-" + id);
@@ -25,6 +26,10 @@ function loadScores(ids) {
 			console.error(e);
 		}
 	});
+}
+
+function reloadScore(id) {
+	loadScores([id], false);
 }
 
 function reloadScores() {
