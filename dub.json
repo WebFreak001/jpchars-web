@@ -4,7 +4,8 @@
 		"webfreak"
 	],
 	"dependencies": {
-		"vibe-d": "~>0.8.2-alpha.2"
+		"vibe-d": "~>0.8.2-alpha.2",
+		"mongoschemad": "~>2.5.3"
 	},
 	"description": "A simple vibe.d server application.",
 	"copyright": "Copyright © 2017, webfreak",

@@ -29,9 +29,13 @@ var modules = {};
 var activeModule;
 var unsaved;
 var drawer;
+var startupDialog;
+var usernamePreview;
 
 var speedrun = false;
 var timersEnabled = true;
+var shouldSync = false;
+var username = "";
 
 function loadModule(id) {
 	if (unloadModule()) {
@@ -181,11 +185,69 @@ function putScore(id, obj) {
 		window.localStorage.setItem("score." + id, JSON.stringify([obj]));
 	else
 		window.localStorage.setItem("score." + id, existing.substr(0, existing.length - 1) + "," + JSON.stringify(obj) + "]");
+	var at = new Date().toISOString();
+	window.localStorage.setItem("update." + id, at);
 	reloadScores();
+
+	if (shouldSync) {
+		var xhr = new XMLHttpRequest();
+		xhr.onload = function () {
+			if (xhr.status == 200) {
+				processScoreDownload(JSON.parse(xhr.responseText));
+			}
+		};
+		xhr.open("GET", "/api/add?user=" + encodeURIComponent(username) + "&id=" + encodeURIComponent(id) + "&score=" + encodeURIComponent(JSON.stringify(obj)) + "&at=" + encodeURIComponent(at));
+		xhr.send();
+	}
+}
+
+function processScoreDownload(json) {
+	var updated = false;
+	for (var i = 0; i < json.length; i++) {
+		var elem = json[i];
+		if (!window.localStorage.getItem("score." + elem.id) || !window.localStorage.getItem("update." + elem.id) || new Date(elem.update) > new Date(window.localStorage.getItem("update." + elem.id))) {
+			window.localStorage.setItem("score." + elem.id, JSON.stringify(elem.value));
+			window.localStorage.setItem("update." + elem.id, elem.update);
+			updated = true;
+		}
+	}
+	if (updated)
+		reloadScores();
+}
+
+function clearScores() {
+	for (var key in window.localStorage)
+		if (key.startsWith("score.") || key.startsWith("update."))
+			window.localStorage.removeItem(key);
+}
+
+function downloadScores() {
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function () {
+		if (xhr.status == 200) {
+			processScoreDownload(JSON.parse(xhr.responseText));
+		}
+	};
+	xhr.onloadend = function () {
+		if (xhr.status == 404 && xhr.responseText.trim().toLowerCase() == "user not found") {
+			clearScores();
+			reloadScores();
+		}
+	}
+	xhr.on
+	xhr.open("GET", "/api/list?user=" + encodeURIComponent(username));
+	xhr.send();
 }
 
 function isSmallScreen() {
 	return window.innerWidth <= 600;
+}
+
+function updateUsernamePreview() {
+	if (username)
+		usernamePreview.textContent = "Online: " + username.substr(0, username.indexOf('#'));
+	else
+		usernamePreview.textContent = "Offline Mode";
 }
 
 window.onload = function () {
@@ -195,6 +257,41 @@ window.onload = function () {
 	document.querySelector(".mdc-toolbar__icon--menu").addEventListener("click", function () {
 		drawer.open = !drawer.open;
 	});
+
+	startupDialog = new mdc.dialog.MDCDialog(document.getElementById("startup-dialog"));
+	startupDialog.listen("MDCDialog:accept", function () {
+		var name = document.getElementById("username-input").value;
+		if (!name) {
+			username = "";
+			window.localStorage.setItem("username", "no");
+			shouldSync = false;
+		}
+		else {
+			if (name.indexOf('#') <= 0) {
+				alert("Please enter a hash along with your username");
+				startupDialog.show();
+			}
+			else {
+				username = name;
+				window.localStorage.setItem("username", name);
+				shouldSync = true;
+				clearScores();
+				downloadScores();
+				updateUsernamePreview();
+			}
+		}
+	});
+
+	username = window.localStorage.getItem("username");
+	if (!username) {
+		startupDialog.show();
+	}
+	else if (username == "no") {
+		shouldSync = false;
+		username = "";
+	}
+	else
+		shouldSync = true;
 
 	document.querySelectorAll('.mdc-button').forEach(function (btn) {
 		mdc.ripple.MDCRipple.attachTo(btn);
@@ -211,5 +308,20 @@ window.onload = function () {
 	var hash = window.location.hash;
 	if (hash) {
 		loadModule(hash.substr(1));
+	}
+
+	usernamePreview = document.getElementById("username-preview");
+	usernamePreview.parentElement.onclick = function () {
+		document.getElementById("username-input").value = username;
+		startupDialog.show();
+		setTimeout(function () {
+			document.getElementById("username-input").focus();
+		}, 100);
+	};
+
+	updateUsernamePreview();
+
+	if (shouldSync) {
+		downloadScores();
 	}
 };

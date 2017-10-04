@@ -40,6 +40,9 @@ html
 								.mdc-switch__background
 									.mdc-switch__knob
 							| Timers
+						label.mdc-list-item
+							i.material-icons.mdc-list-item__start-detail(aria-hidden="true") cloud
+							span#username-preview Offline Mode
 		.content
 			.mdc-toolbar.mdc-elevation--z4
 				.mdc-toolbar__row
@@ -76,6 +79,27 @@ html
 					.details Details go here
 				footer.mdc-dialog__footer
 					button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--cancel Close
+			.mdc-dialog__backdrop
+		aside.mdc-dialog#startup-dialog(role="alertdialog", aria-hidden="true", aria-labelledby="startup-dialog-label", aria-describedby="startup-dialog-content")
+			.mdc-dialog__surface
+				header.mdc-dialog__header
+					h2.mdc-dialog__header__title#startup-dialog-label Welcome!
+				section.mdc-dialog__body.mdc-dialog__body--scrollable#startup-dialog-content
+					p.
+						You can sync your progress across your devices by
+						entering a username for your score including a suffix
+						separated by a hash (#) to protect others from overwriting your score.
+					p If you type in the exact name on another device it will join all results and you can
+						| use both devices to track your learning progress. An example for a good name would be
+						code bob#banana&calendar-sandwich1329
+					p.
+						If you don't want to sync your progress accross devices simply leave this field blank.
+					div.mdc-textfield
+						input.mdc-textfield__input#username-input(type="text")
+						label.mdc-textfield__label(for="username-input") Username#Hash
+						.mdc-textfield__bottom-line
+				footer.mdc-dialog__footer
+					button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--accept Save
 			.mdc-dialog__backdrop
 		script(src="/material-components-web/dist/material-components-web.js")
 		script(src="/js/main.js")
