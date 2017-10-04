@@ -126,6 +126,11 @@ figure.score > figcaption > span.details {
 	height: 14px;
 }
 
+#home h3.mdc-typography--subheading2 {
+	margin-left: 40px;
+	color: rgba(0, 0, 0, 0.54);
+}
+
 
 /* Generic modules */
 

@@ -117,9 +117,10 @@ void loadModules()
 {
 	import modules.kana : Kana;
 
+	loadedModules ~= new ModuleSeparator(TranslatedString(["en" : "Kana"]));
 	loadedModules ~= Kana.hiragana;
 	loadedModules ~= Kana.katakana;
-	loadedModules ~= null;
+	loadedModules ~= new ModuleSeparator(TranslatedString(["en" : "Reverse Kana"]));
 	loadedModules ~= Kana.hiraganaRev;
 	loadedModules ~= Kana.katakanaRev;
 }

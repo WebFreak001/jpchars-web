@@ -10,6 +10,7 @@ html
 		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
 		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 	body
+		- import modules.imodule;
 		aside.mdc-persistent-drawer
 			nav.mdc-persistent-drawer__drawer
 				.mdc-persistent-drawer__toolbar-spacer
@@ -19,7 +20,7 @@ html
 							i.material-icons.mdc-list-item__start-detail(aria-hidden="true") home
 							| Home
 						- foreach (mod; loadedModules)
-							- if (mod is null)
+							- if (cast(ModuleSeparator)mod)
 								</nav>
 								hr.mdc-list-divider
 								<nav class="mdc-list modules">
@@ -59,13 +60,15 @@ html
 					#views
 						.view.active#home(role="tabpanel", aria-hidden="false")
 							- foreach (i, mod; loadedModules)
-								- if (!mod) continue;
-								figure.score.mdc-elevation--z5
-									canvas(id="score-" ~ mod.id)
-									figcaption= mod.name("en")
-										span.details
+								- if (cast(ModuleSeparator)mod)
+									h3.mdc-typography--subheading2= mod.name("en")
+								- else
+									figure.score.mdc-elevation--z5
+										canvas(id="score-" ~ mod.id)
+										figcaption= mod.name("en")
+											span.details
 						- foreach (i, mod; loadedModules)
-							- if (!mod) continue;
+							- if (cast(ModuleSeparator)mod) continue;
 							.view(id=mod.id, role="tabpanel", aria-hidden="true")
 								|!= mod.render("en")
 		aside.mdc-dialog#score-dialog(role="alertdialog", aria-hidden="true", aria-labelledby="score-dialog-label", aria-describedby="score-dialog-content")
@@ -110,7 +113,7 @@ html
 		- string[] ids;
 		- string[] addedScripts;
 		- foreach (mod; loadedModules)
-			- if (!mod) continue;
+			- if (cast(ModuleSeparator)mod) continue;
 			- ids ~= mod.id;
 			- foreach (script; mod.scripts)
 				- if (addedScripts.canFind(script)) continue;
