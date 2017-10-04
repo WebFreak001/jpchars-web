@@ -14,12 +14,15 @@ var learnedKana = [
 	0x4a, 0x4b, 0x4c, 0x4d, 0x4f, 0x52, 0x53
 ];
 
+var unicodeHiraganaStart = 0x3040;
+var unicodeKatakanaStart = 0x30A0;
+
 function romanizeCharacter(c) {
 	var code = c.charCodeAt(0);
-	if (code >= 0x30A0)
-		return kanaRomanization[code - 0x30A0];
-	else if (code >= 0x3040)
-		return kanaRomanization[code - 0x3040];
+	if (code >= unicodeKatakanaStart)
+		return kanaRomanization[code - unicodeKatakanaStart];
+	else if (code >= unicodeHiraganaStart)
+		return kanaRomanization[code - unicodeHiraganaStart];
 	else
 		return undefined;
 }
@@ -34,9 +37,9 @@ function loadKanaBase(self, id) {
 	self.timeoutTime = 0;
 	var code;
 	if (id.startsWith("hiragana"))
-		code = 0x3040;
+		code = unicodeHiraganaStart;
 	else if (id.startsWith("katakana"))
-		code = 0x30A0;
+		code = unicodeKatakanaStart;
 	else throw new Error("Module used for non-katakana/hiragana");
 	for (var i = 0; i < learnedKana.length; i++)
 		self.todo.push(String.fromCharCode(code + learnedKana[i]));
