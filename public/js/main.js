@@ -16,12 +16,16 @@ function loadPage(id) {
 		activePanel.setAttribute("aria-hidden", "false");
 		newActiveTab.classList.add("mdc-permanent-drawer--selected");
 	}
+
+	if (isSmallScreen())
+		drawer.open = false;
 }
 
 var modules = {};
 
 var activeModule;
 var unsaved;
+var drawer;
 
 var speedrun = false;
 var timersEnabled = true;
@@ -177,10 +181,14 @@ function putScore(id, obj) {
 	reloadScore(id);
 }
 
+function isSmallScreen() {
+	return window.innerWidth <= 600;
+}
+
 window.onload = function () {
 	mdc.autoInit();
-	var drawer = new mdc.drawer.MDCPersistentDrawer(document.querySelector(".mdc-persistent-drawer"));
-	drawer.open = window.innerWidth > 600;
+	drawer = new mdc.drawer.MDCPersistentDrawer(document.querySelector(".mdc-persistent-drawer"));
+	drawer.open = !isSmallScreen();
 	document.querySelector(".mdc-toolbar__icon--menu").addEventListener("click", function () {
 		drawer.open = !drawer.open;
 	});
