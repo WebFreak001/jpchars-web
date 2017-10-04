@@ -19,6 +19,9 @@ function loadPage(id) {
 
 	if (isSmallScreen())
 		drawer.open = false;
+
+	if (id == "home")
+		reloadScores();
 }
 
 var modules = {};
@@ -178,7 +181,7 @@ function putScore(id, obj) {
 		window.localStorage.setItem("score." + id, JSON.stringify([obj]));
 	else
 		window.localStorage.setItem("score." + id, existing.substr(0, existing.length - 1) + "," + JSON.stringify(obj) + "]");
-	reloadScore(id);
+	reloadScores();
 }
 
 function isSmallScreen() {
