@@ -121,6 +121,10 @@ figure.score > figcaption > span.details {
 	color: rgba(0, 0, 0, 0.54);
 }
 
+.mdc-switch.mdc-list-item__start-detail {
+	height: 14px;
+}
+
 
 /* Generic modules */
 

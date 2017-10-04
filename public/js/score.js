@@ -117,7 +117,7 @@ function loadScore(canvas, scores) {
 	for (var i = 6; i >= 0; i--) {
 		var txt = "Now";
 		if (i != 6)
-			txt = "-" + (6 - i) + " Days";
+			txt = "-" + (6 - i) + " Day" + (i == 5 ? "" : "s");
 		var w = context.measureText(txt).width;
 		context.fillText(txt, canvas.height - w - 20, Math.max(-canvas.width + 12, -canvas.width * dayLines[i]));
 	}
