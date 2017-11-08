@@ -226,6 +226,11 @@ template attr(string name)
 			return Attribute(name, val);
 		}
 	}
+
+	Attribute attr()
+	{
+		return Attribute(name, name);
+	}
 }
 
 struct HeadElemBodyAttr
@@ -251,8 +256,7 @@ alias style = headElemBodyAttr!"style";
 
 enum html = Element("html");
 enum head = Element("head");
-enum 
-	body = Element("body");
+enum body = Element("body");
 enum p = Element("p");
 enum h1 = Element("h1");
 enum h2 = Element("h2");
@@ -294,6 +298,9 @@ enum header = Element("header");
 enum footer = Element("footer");
 enum svg = Element("svg");
 enum label = Element("label");
+enum section = Element("section");
+enum nav = Element("nav");
+enum aside = Element("aside");
 
 enum font = CssAttribute("font");
 enum family = CssAttribute("family");
@@ -331,6 +338,7 @@ alias maxLength = attr!"maxLength";
 alias pattern = attr!"pattern";
 alias required = attr!"required";
 alias disabled = attr!"disabled";
+alias readonly = attr!"readonly";
 alias placeholder = attr!"placeholder";
 alias role = attr!"role";
 alias for_ = attr!"for";
@@ -340,6 +348,45 @@ alias property = attr!"property";
 alias tabindex = attr!"tabindex";
 alias action = attr!"action";
 alias method = attr!"method";
+alias value = attr!"value";
+alias selected = attr!"selected";
+alias oncached = attr!"oncached";
+alias onerror = attr!"onerror";
+alias onabort = attr!"onabort";
+alias onload = attr!"onload";
+alias onbeforeunload = attr!"onbeforeunload";
+alias onunload = attr!"onunload";
+alias onfocus = attr!"onfocus";
+alias onblur = attr!"onblur";
+alias onreset = attr!"onreset";
+alias onsubmit = attr!"onsubmit";
+alias onkeydown = attr!"onkeydown";
+alias onkeypress = attr!"onkeypress";
+alias onkeyup = attr!"onkeyup";
+alias onmouseenter = attr!"onmouseenter";
+alias onmouseover = attr!"onmouseover";
+alias onmousemove = attr!"onmousemove";
+alias onmousedown = attr!"onmousedown";
+alias onmouseup = attr!"onmouseup";
+alias onauxclick = attr!"onauxclick";
+alias onclick = attr!"onclick";
+alias ondblclick = attr!"ondblclick";
+alias oncontextmenu = attr!"oncontextmenu";
+alias onwheel = attr!"onwheel";
+alias onmouseleave = attr!"onmouseleave";
+alias onmouseout = attr!"onmouseout";
+alias onselect = attr!"onselect";
+alias onpointerlockchange = attr!"onpointerlockchange";
+alias onpointerlockerror = attr!"onpointerlockerror";
+alias ondragstart = attr!"ondragstart";
+alias ondrag = attr!"ondrag";
+alias ondragend = attr!"ondragend";
+alias ondragenter = attr!"ondragenter";
+alias ondragover = attr!"ondragover";
+alias ondragleave = attr!"ondragleave";
+alias ondrop = attr!"ondrop";
+alias onchange = attr!"onchange";
+alias oninput = attr!"oninput";
 
 enum aliceBlue = "aliceBlue";
 enum antiqueWhite = "antiqueWhite";
