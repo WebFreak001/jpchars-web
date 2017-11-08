@@ -5,6 +5,7 @@ html
 		meta(http-equiv="x-ua-compatible", content="ie=edge")
 		meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
 		title jpchars
+		link(rel="stylesheet", href="/flag-icon-css/css/flag-icon.min.css")
 		link(rel="stylesheet", href="/material-components-web/dist/material-components-web.css")
 		link(rel="stylesheet", href="/css/main.css")
 		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
@@ -104,6 +105,13 @@ html
 				footer.mdc-dialog__footer
 					button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--accept Save
 			.mdc-dialog__backdrop
+		div(style="display:none")
+			.mdc-checkbox#checkbox-template
+				input.mdc-checkbox__native-control(type="checkbox")
+				.mdc-checkbox__background
+					svg.mdc-checkbox__checkmark(viewBox="0 0 24 24")
+						path.mdc-checkbox__checkmark__path(fill="none", stroke="white", d="M1.73,12.91 8.1,19.28 22.79,4.59")
+					.mdc-checkbox__mixedmark
 		script(src="/material-components-web/dist/material-components-web.js")
 		script(src="/js/main.js")
 		script(src="/js/score.js")

@@ -1,5 +1,7 @@
 import vibe.vibe;
 
+import std.algorithm;
+
 import modules.imodule;
 
 import mongoschema;
@@ -33,6 +35,8 @@ struct UserScore
 
 void main()
 {
+	import modules.vocabulary : Vocabulary, VocabularyBook;
+
 	static import config;
 
 	auto settings = new HTTPServerSettings;
@@ -41,6 +45,13 @@ void main()
 
 	auto db = connectMongoDB("mongodb://localhost").getDatabase(config.Database);
 	db["scores"].register!UserScore;
+	db["vocpacks"].register!VocabularyBook;
+	db["vocabulary"].register!Vocabulary;
+
+	/*Vocabulary(BsonObjectID.init, SchemaDate.now, [
+		"en": "tree",
+		"jp": "木"
+	], ["webfreak"]).save();*/
 
 	auto router = new URLRouter;
 	router.get("*", serveStaticFiles("node_modules"));
@@ -48,9 +59,116 @@ void main()
 	router.get("/", &index);
 	router.get("/api/list", &listScores);
 	router.get("/api/add", &addScore);
+	router.post("/api/vocabulary", &postVocabulary);
+	router.get("/api/vocabulary/book", &getVocabularyBooks);
+	router.post("/api/vocabulary/book", &postVocabularyBook);
+	router.get("/api/vocabulary/suggest", &getVocabularySuggestion);
 	loadModules();
 	listenHTTP(settings, router);
 	runApplication();
+}
+
+void postVocabulary(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+	import modules.vocabulary : Vocabulary;
+
+	string user = req.query.get("user", "");
+	enforceBadRequest(user.length, "Username required for submitting vocabulary");
+	auto langs = req.query.getAll("lang");
+	auto translations = req.query.getAll("translation");
+	enforceBadRequest(langs.length >= 2, "Requires at least 2 languages");
+	enforceBadRequest(translations.length = langs.length, "Translations must match languages");
+	string[string] tr;
+	foreach (i, l; langs)
+		tr[l] = translations[i];
+	Vocabulary v;
+	string extend = req.query.get("extend", "");
+	if (extend.length)
+		v = Vocabulary.findById(extend);
+	v.bsonID = BsonObjectID.generate();
+	v.date = SchemaDate.now;
+	v.translations = tr;
+	string creator = user.hashUsername(true);
+	if (!v.contributors.canFind(creator))
+		v.contributors ~= creator;
+	v.save();
+	res.writeJsonBody(v.bsonID);
+}
+
+void getVocabularyBooks(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+	import modules.vocabulary : Vocabulary, VocabularyBook;
+
+	string user = req.query.get("user", "");
+	enforceBadRequest(user.length, "Username required for listing vocabulary books");
+
+	Json ret = Json.emptyArray;
+
+	foreach (book; VocabularyBook.findRange(["creator" : user.hashUsername]))
+	{
+		Json obj = Json.emptyObject;
+
+		obj["_id"] = Json(book.bsonID.toString);
+		obj["name"] = Json(book.name);
+		obj["lang1"] = Json(book.lang1);
+		obj["lang2"] = Json(book.lang2);
+		obj["vocabulary"] = Json.emptyArray;
+
+		foreach (id; book.vocabulary)
+		{
+			auto voc = Vocabulary.tryFindById(id);
+			if (voc.isNull)
+				continue;
+			obj["vocabulary"].appendArrayElement(voc.toSchemaBson!Vocabulary.toJson);
+		}
+
+		ret.appendArrayElement(obj);
+	}
+
+	res.writeJsonBody(ret);
+}
+
+void postVocabularyBook(scope HTTPServerRequest r, scope HTTPServerResponse res)
+{
+	import modules.vocabulary : Vocabulary, VocabularyBook;
+
+	string user = r.query.get("user", "");
+	enforceBadRequest(user.length, "Username required for submitting vocabulary books");
+	Json req = r.json;
+	string name = req["name"].get!string;
+	enforceBadRequest(name.length, "Vocabulary books must have a name");
+	string lang1 = req["lang1"].get!string;
+	enforceBadRequest(lang1.length == 2, "Invalid first language");
+	string lang2 = req["lang2"].get!string;
+	enforceBadRequest(lang2.length == 2, "Invalid second language");
+	auto vocabulary = req["vocabulary"].deserializeJson!(string[]);
+	VocabularyBook book;
+	book.creator = user.hashUsername;
+	book.name = name;
+	book.lang1 = lang1;
+	book.lang2 = lang2;
+	book.vocabulary.reserve(vocabulary.length);
+	foreach (idStr; vocabulary)
+	{
+		BsonObjectID id = BsonObjectID.fromString(idStr);
+		enforceBadRequest(!Vocabulary.tryFindById(id).isNull,
+				"Vocabulary with ID " ~ idStr ~ " not found");
+		book.vocabulary ~= id;
+	}
+	book.save();
+	res.writeJsonBody(book.bsonID);
+}
+
+void getVocabularySuggestion(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+	import modules.vocabulary : Vocabulary;
+	import std.regex : escaper;
+
+	string lang = req.query.get("lang", "en");
+	string input = req.query.get("input", "");
+	auto ret = Vocabulary.find(["$query" : Bson(["translations." ~ lang
+			: Bson(["$regex" : Bson(input.escaper.to!string)])]), "$orderby" : Bson(["date" : Bson(-1)])]);
+	res.writeJsonBody(ret);
 }
 
 void listScores(scope HTTPServerRequest req, scope HTTPServerResponse res)
@@ -66,7 +184,7 @@ void listScores(scope HTTPServerRequest req, scope HTTPServerResponse res)
 	res.writeJsonBody(score.buildJson);
 }
 
-string hashUsername(string s)
+string hashUsername(string s, bool shortVersion = false)
 {
 	import std.base64;
 	import std.digest.sha;
@@ -74,7 +192,8 @@ string hashUsername(string s)
 	auto hash = s.indexOf('#');
 	if (hash == -1)
 		throw new Exception("Username does not contain a hash");
-	return s[0 .. hash + 1] ~ Base64.encode(sha512Of(s[hash + 1 .. $])).idup;
+	return s[0 .. hash + 1] ~ Base64.encode(sha512Of(s[hash + 1 .. $]))[0 .. shortVersion ? 5 : $]
+		.idup;
 }
 
 void addScore(scope HTTPServerRequest req, scope HTTPServerResponse res)
@@ -116,7 +235,9 @@ void addScore(scope HTTPServerRequest req, scope HTTPServerResponse res)
 void loadModules()
 {
 	import modules.kana : Kana;
+	import modules.vocabulary : VocabularyModule;
 
+	loadedModules ~= VocabularyModule.instance;
 	loadedModules ~= new ModuleSeparator(TranslatedString(["en" : "Kana"]));
 	loadedModules ~= Kana.hiragana;
 	loadedModules ~= Kana.katakana;

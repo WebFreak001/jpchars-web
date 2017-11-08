@@ -250,6 +250,26 @@ function updateUsernamePreview() {
 		usernamePreview.textContent = "Offline Mode";
 }
 
+function expandLanguage(id) {
+	return {
+		en: "English",
+		de: "Deutsch",
+		ja: "日本語"
+	}[id] || id;
+}
+
+function languageIcon(id) {
+	switch (id) {
+	case "en":
+		id = "gb";
+		break;
+	case "ja":
+		id = "jp";
+		break;
+	}
+	return "flag-icon-" + id;
+}
+
 window.onload = function () {
 	mdc.autoInit();
 	drawer = new mdc.drawer.MDCPersistentDrawer(document.querySelector(".mdc-persistent-drawer"));
@@ -293,16 +313,23 @@ window.onload = function () {
 	else
 		shouldSync = true;
 
-	document.querySelectorAll('.mdc-button').forEach(function (btn) {
-		mdc.ripple.MDCRipple.attachTo(btn);
-	})
-	document.querySelectorAll('.mdc-textfield').forEach(function (field) {
-		mdc.textfield.MDCTextfield.attachTo(field);
-	})
-	document.querySelectorAll('.mdc-linear-progress').forEach(function (field) {
+	function attach(c, selector) {
+		document.querySelectorAll(selector).forEach(function (elem) {
+			if (elem.id.endsWith("-template"))
+				return;
+			c.attachTo(elem);
+		})
+	}
+
+	attach(mdc.ripple.MDCRipple, ".mdc-fab");
+	attach(mdc.ripple.MDCRipple, ".mdc-button");
+	attach(mdc.ripple.MDCRipple, ".mdc-ripple-surface");
+	attach(mdc.select.MDCSelect, ".mdc-select");
+	attach(mdc.textfield.MDCTextfield, ".mdc-textfield");
+	document.querySelectorAll(".mdc-linear-progress").forEach(function (field) {
 		var p = mdc.linearProgress.MDCLinearProgress.attachTo(field);
 		p.progress = 0;
-	})
+	});
 	scoreDialogElement = document.getElementById("score-dialog");
 	scoreDialog = new mdc.dialog.MDCDialog(scoreDialogElement);
 	var hash = window.location.hash;

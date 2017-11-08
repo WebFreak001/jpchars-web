@@ -131,6 +131,64 @@ figure.score > figcaption > span.details {
 	color: rgba(0, 0, 0, 0.54);
 }
 
+.mdc-ripple-surface.material-icons {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border-radius: 50%;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.mdc-list--dense .mdc-list-item__start-detail {
+	margin-right: 16px;
+}
+
+.mdc-button.multiicons .material-icons {
+	padding-top: 6px;
+	font-size: 1.4em;
+}
+
+#input-autocomplete {
+	background: white;
+	margin: 0;
+	padding: 0;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+	overflow-y: auto;
+}
+
+#input-autocomplete > div {
+	padding: 8px;
+	margin: 0;
+	cursor: pointer;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.13);
+}
+
+#input-autocomplete > div:hover {
+	background: rgba(0, 0, 0, 0.15);
+}
+
+#input-autocomplete > div > span.detail:before {
+	display: inline-block;
+	padding: 0 8px;
+	content: '/';
+	color: rgba(0, 0, 0, 0.13);
+}
+
+#input-autocomplete > div > span.detail {
+	color: rgba(0, 0, 0, 0.54);
+}
+
+hr {
+	border: none;
+	height: 1px;
+	background-color: rgba(0, 0, 0, 0.13);
+}
+
 
 /* Generic modules */
 
@@ -181,4 +239,110 @@ figure.score > figcaption > span.details {
 .kana canvas.paintarea {
 	display: block;
 	margin: auto;
+}
+
+
+/* Vocabulary module */
+
+.vocabulary {
+	padding: 16px 0;
+	max-width: 800px;
+	margin: 16px auto;
+	background: white;
+}
+
+.vocabulary .mdc-button.multiicons {
+	margin: 8px 0;
+	padding: 0;
+}
+
+.vocabulary .learn .solution {
+	font-size: 2em;
+	padding: 4px;
+	min-height: 1em;
+}
+
+.vocabulary .learn .romanization {
+	font-size: 1.2em;
+	padding: 4px;
+	min-height: 1em;
+}
+
+.vocabulary-create-topbar {
+	display: flex;
+}
+
+.vocabulary .mdc-fab {
+	position: fixed;
+	bottom: 16px;
+	right: 16px;
+}
+
+@media screen and (min-width: 600px) {
+	.vocabulary .mdc-fab {
+		bottom: 64px;
+		right: 64px;
+	}
+}
+
+.vocabulary .nopacks {
+	text-align: center;
+	padding: 32px;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+.vocabulary .mdc-dialog__body--scrollable {
+	max-height: calc(100vh - 180px);
+}
+
+#vocabulary-create-dialog-section > label {
+	display: block;
+	padding: 8px;
+}
+
+.vocabulary .removebutton .material-icons {
+	margin-right: 8px;
+	height: 1.1em;
+	vertical-align: middle;
+}
+
+.vocabulary .name {
+	width: 100%;
+}
+
+.vocabulary .answer {
+	width: 100%;
+}
+
+#vocabulary-packs .lang-pair {
+	display: block;
+	width: 34px;
+	height: 18px;
+	position: relative;
+	margin-left: 8px;
+}
+
+#vocabulary-packs .mdc-list-item .mdc-list-item__text {
+	flex-direction: row;
+}
+
+#vocabulary-packs .lang-pair .flag-icon {
+	border-radius: 100%;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+	position: absolute;
+	position: inline-block;
+	width: 18px;
+	height: 18px;
+}
+
+#vocabulary-packs .lang-pair .lang-from {
+	left: 0;
+	bottom: 0;
+	z-index: 2;
+}
+
+#vocabulary-packs .lang-pair .lang-to {
+	top: 0;
+	right: 0;
+	z-index: 1;
 }
