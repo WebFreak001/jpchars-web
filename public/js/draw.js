@@ -15,14 +15,34 @@ function line(x0, y0, x1, y1, cb) {
 	}
 }
 
+function getCanvasSize() {
+	if (window.innerWidth < 500)
+		return 80;
+	else if (window.innerWidth < 720)
+		return 90;
+	else
+		return 100;
+}
+
+function getBrushSize() {
+	if (window.innerWidth < 500)
+		return 1;
+	else if (window.innerWidth < 720)
+		return 2;
+	else
+		return 2;
+}
+
 function makeDrawCanvas(w, h) {
 	if (!w) w = 1;
 	if (!h) h = 1;
 	var canvas = document.createElement("canvas");
 	canvas.className = "paintarea";
 	var context = canvas.getContext("2d");
-	canvas.width = w * 98 + 2;
-	canvas.height = h * 98 + 2;
+	var s = getCanvasSize() - 2;
+	var bs = getBrushSize();
+	canvas.width = w * s + 2;
+	canvas.height = h * s + 2;
 	var obj = {
 		element: canvas,
 		context: context,
@@ -50,13 +70,13 @@ function makeDrawCanvas(w, h) {
 		context.fillRect(0, 0, canvas.width, canvas.height);
 		for (var y = 0; y < h; y++)
 			for (var x = 0; x < w; x++)
-				context.drawImage(img, x * 98, y * 98);
+				context.drawImage(img, x * s, y * s, s, s);
 		obj.bg = context.getImageData(0, 0, canvas.width, canvas.height);
 		obj.raw = context.getImageData(0, 0, canvas.width, canvas.height);
 
 		var prevX, prevY;
 		function putDot(xx, yy, erase) {
-			var r = erase ? 4 : 2;
+			var r = bs * (erase ? 2 : 1);
 			for (var oy = -r; oy <= r; oy++) {
 				if (y < 0 || y >= canvas.width)
 					continue;
