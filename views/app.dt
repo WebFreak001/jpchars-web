@@ -45,6 +45,9 @@ html
 						label.mdc-list-item
 							i.material-icons.mdc-list-item__start-detail(aria-hidden="true") cloud
 							span#username-preview Offline Mode
+					.copyright
+						div: a(href="https://github.com/WebFreak001/jpchars-web") Source Code
+						div #[a(href="http://kanjivg.tagaini.net") KanjiVG] for strokes
 		.content
 			.mdc-toolbar.mdc-elevation--z4
 				.mdc-toolbar__row

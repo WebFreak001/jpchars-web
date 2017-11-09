@@ -33,6 +33,40 @@ function getBrushSize() {
 		return 2;
 }
 
+var kanjiStrokes = undefined;
+function loadKanjiStrokes() {
+	if (kanjiStrokes !== undefined)
+		return;
+	kanjiStrokes = null;
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/kanjivg.xml");
+	xhr.onload = function () {
+		if (xhr.status == 200) {
+			kanjiStrokes = xhr.responseXML;
+		}
+	};
+	xhr.send();
+}
+
+function getKanjiSVG(char) {
+	if (!kanjiStrokes)
+		return null;
+	var code = char.charCodeAt(0).toString(16);
+	while (code.length < 5)
+		code = "0" + code;
+	var kanji = kanjiStrokes.querySelector("kanji[id=\"kvg:kanji_" + code + "\"]");
+	if (!kanji)
+		return null;
+	var children = "";
+	for (var i = 0; i < kanji.children.length; i++)
+		children += new XMLSerializer().serializeToString(kanji.children[i]);
+	var style = "<defs><style type=\"text/css\"><![CDATA[path{stroke:black;fill:none;stroke-linecap:round;stroke-linejoin:round}]]></style></defs>";
+	var svg = "<svg viewBox=\"0 0 109 109\" width=\"109\" height=\"109\" xmlns=\"http://www.w3.org/2000/svg\">" + style + children + "</svg>";
+	return "data:image/svg+xml," + encodeURIComponent(svg);
+}
+
+loadKanjiStrokes();
+
 function makeDrawCanvas(w, h) {
 	if (!w) w = 1;
 	if (!h) h = 1;

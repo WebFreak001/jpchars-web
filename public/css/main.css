@@ -37,6 +37,11 @@ body > .content {
 	z-index: 2;
 }
 
+.copyright {
+	text-align: center;
+	padding: 8px;
+}
+
 
 /* Generic stuff */
 
