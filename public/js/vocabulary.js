@@ -174,6 +174,7 @@ var vocabularyModule = {
 		this.correct = 0;
 		this.partly = 0;
 		this.wrong = 0;
+		this.total = 0;
 		this.validating = false;
 		this.learn.style.display = "none";
 		this.showPackSelect();
@@ -318,6 +319,7 @@ var vocabularyModule = {
 	correct: 0,
 	partly: 0,
 	wrong: 0,
+	total: 0,
 	confirm: function (state) {
 		var confirmBtn = this.learn.querySelector(".confirm");
 		var partialBtn = this.learn.querySelector(".partial");
@@ -329,6 +331,7 @@ var vocabularyModule = {
 				this.partly++;
 			else
 				this.wrong++;
+			this.total++;
 			confirmBtn.textContent = confirmBtn.getAttribute("confirm-text");
 			partialBtn.disabled = true;
 			wrongBtn.disabled = true;
@@ -346,7 +349,12 @@ var vocabularyModule = {
 	},
 	nextVocabulary: function () {
 		if (this.toLearn.length == 0) {
-
+			showRating("vocabulary", {
+				correct: this.correct,
+				partly: this.partly,
+				wrong: this.wrong
+			}, this.correct * 2 + this.partly, this.total * 2);
+			return;
 		} else {
 			var v = this.toLearn.pop();
 			this.currentVoc = v;
