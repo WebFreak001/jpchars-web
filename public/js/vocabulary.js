@@ -50,14 +50,18 @@ function validateJapaneseVocabularyInput(s) {
 		return true;
 	for (var i = 0; i < s.length; i++) {
 		var c = s.charCodeAt(i);
-		if (c < 0x2E80) continue;
-		if (c > 0x3040 && c < 0x30FF) continue;
+		if (mightBeKanji(c)) continue;
 		alert("Please provide a romanization using kana after your japanese string separated with ;;\n\nExample: 日本語;;に・ほん・ご\n\n. will be converted to ・");
 		return false;
 	}
 	return true;
 }
 
+function mightBeKanji(c) {
+	if (c < 0x2E80) return false;
+	if (c > 0x3040 && c < 0x30FF) return false;
+	return true;
+}
 
 var vocabularyCreationDialog = new mdc.dialog.MDCDialog(document.getElementById("vocabulary-create"));
 vocabularyCreationDialog.listen("MDCDialog:accept", function () {
@@ -344,6 +348,7 @@ var vocabularyModule = {
 			wrongBtn.disabled = false;
 			this.validating = true;
 			this.showSolution();
+			this.showKanjiMeaning();
 			stopTimelimit();
 		}
 		unsaved = true;
@@ -384,6 +389,9 @@ var vocabularyModule = {
 				this.drawCanvas = regenCanvas();
 			else
 				this.drawCanvas.clear();
+			var kanji = this.learn.querySelector(".kanji");
+			while (kanji.childNodes.length)
+				kanji.removeChild(kanji.lastChild);
 			this.setTimer();
 		}
 	},
@@ -405,6 +413,43 @@ var vocabularyModule = {
 			this.learn.querySelector(".answer").value += " -> " + this.currentVoc[0];
 		else
 			this.learn.querySelector(".answer").value += " - Correct!";
+	},
+	showKanjiMeaning: function () {
+		for (var i = 0; i < this.currentVoc[1].length; i++) {
+			if (mightBeKanji(this.currentVoc[1].charCodeAt(i))) {
+				var info = document.createElement("div");
+				info.className = "meaning";
+				info.style.display = "none";
+				var character = document.createElement("div");
+				character.className = "character";
+				character.textContent = this.currentVoc[1].charAt(i);
+				info.appendChild(character);
+				getKanjiMeaning(this.currentVoc[1].charAt(i), function (stats) {
+					if (!stats)
+						return;
+					info.style.display = "";
+					if (stats.frequency) {
+						var freq = document.createElement("div");
+						freq.className = "frequency";
+						freq.textContent = "Frequency Rank #" + stats.frequency;
+						info.appendChild(freq);
+					}
+					if (stats.meanings.length) {
+						var meanings = document.createElement("div");
+						meanings.className = "meanings";
+						meanings.textContent = "Meanings: " + stats.meanings.join(", ");
+						info.appendChild(meanings);	
+					}
+					if (stats.readings.length) {
+						var readings = document.createElement("div");
+						readings.className = "readings"; // TODO: kun, on
+						readings.textContent = "Readings: " + stats.readings.join(", ");
+						info.appendChild(readings);	
+					}
+				});
+				this.learn.querySelector(".kanji").appendChild(info);
+			}
+		}
 	},
 	creator: {
 		add: function (id, a, b) {

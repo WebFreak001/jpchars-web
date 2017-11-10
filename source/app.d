@@ -1,6 +1,12 @@
 import vibe.vibe;
 
 import std.algorithm;
+import std.array;
+import std.conv;
+import std.functional;
+import std.range;
+import std.string;
+import std.string : indexOfAny;
 
 import modules.imodule;
 
@@ -59,13 +65,86 @@ void main()
 	router.get("/", &index);
 	router.get("/api/list", &listScores);
 	router.get("/api/add", &addScore);
+	router.get("/api/kanji", &getKanji);
 	router.post("/api/vocabulary", &postVocabulary);
 	router.get("/api/vocabulary/book", &getVocabularyBooks);
 	router.post("/api/vocabulary/book", &postVocabularyBook);
 	router.get("/api/vocabulary/suggest", &getVocabularySuggestion);
 	loadModules();
+	loadKanjis();
+	writeFileUTF8(Path("public/minikanji"),
+			kanjis.filter!"a.frequency != 0 && a.frequency < 1000".map!"a.toMiniString".join("\n"));
 	listenHTTP(settings, router);
 	runApplication();
+}
+
+struct KanjiInfo
+{
+	dchar c;
+	ushort frequency;
+	string[] meanings;
+	string[] readings;
+
+	string toMiniString() const
+	{
+		return c.to!string ~ "\x1d" ~ frequency.to!string(
+				36) ~ "\x1d" ~ meanings.join("\x1e") ~ "\x1d" ~ readings.join("\x1e");
+	}
+
+	static KanjiInfo fromLine(char[] line)
+	{
+		KanjiInfo ret;
+		ret.c = line.front;
+		line.popFront;
+		line = line[12 .. $].stripLeft;
+		bool brace, skipReading;
+		while (line.length)
+		{
+			auto index = brace ? line.indexOf('}') : line.indexOfAny(" {");
+			if (index == -1)
+				index = line.length - 1;
+			auto part = line[0 .. index].stripRight;
+			bool wasBrace = brace;
+			brace = line[index] == '{';
+			line = line[index + 1 .. $].stripLeft;
+			if (!part.length)
+				continue;
+			if (wasBrace)
+				ret.meanings ~= part.idup;
+			else if (part[0] == 'F')
+				ret.frequency = part[1 .. $].to!ushort;
+			else if ((part[0] == '-' || part.front > 255) && !skipReading)
+				ret.readings ~= part.idup;
+			else if (part[0] == 'T')
+				skipReading = true;
+			else
+				skipReading = false;
+		}
+		return ret;
+	}
+}
+
+KanjiInfo[] kanjis;
+
+void loadKanjis()
+{
+	import std.stdio : File;
+
+	kanjis = File("kanjidic", "r").byLine.drop(1).map!(KanjiInfo.fromLine)
+		.array.sort!"a.c<b.c".array;
+}
+
+void getKanji(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+	auto kanji = req.query.get("kanji", "");
+	enforceBadRequest(kanji.length, "Invalid kanji");
+	dchar c = kanji.front;
+
+	auto ret = kanjis.assumeSorted!"a.c<b.c".equalRange(KanjiInfo(c));
+	if (ret.empty)
+		res.writeBody("false", 404, "application/json");
+	else
+		res.writeJsonBody(ret.front);
 }
 
 void postVocabulary(scope HTTPServerRequest req, scope HTTPServerResponse res)

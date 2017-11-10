@@ -73,6 +73,49 @@ function makeKanjiImage(kanji) {
 
 loadKanjiStrokes();
 
+var kanjiMeanings;
+
+function loadKanjiMeanings() {
+	if (kanjiMeanings !== undefined)
+		return;
+	kanjiMeanings = {};
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function () {
+		var lines = xhr.responseText.split('\n');
+		for (var i = 0; i < lines.length; i++) {
+			var part = lines[i].split('\x1d');
+			kanjiMeanings[part[0]] = {
+				c: part[0],
+				frequency: parseInt(part[1], 36),
+				meanings: part[2].split('\x1e'),
+				readings: part[3].split('\x1e')
+			}
+		}
+	};
+	xhr.open("GET", "/minikanji");
+	xhr.send();
+}
+
+loadKanjiMeanings();
+
+function getKanjiMeaning(c, cb) {
+	if (kanjiMeanings[c] !== undefined)
+		cb(kanjiMeanings[c]);
+	else {
+		var xhr = new XMLHttpRequest();
+		xhr.onload = function () {
+			if (xhr.status == 200)
+				cb(kanjiMeanings[c] = JSON.parse(xhr.responseText));
+		};
+		xhr.onloadend = function () {
+			if (xhr.status != 200)
+				cb(kanjiMeanings[c] = null);
+		};
+		xhr.open("GET", "/api/kanji?kanji=" + c);
+		xhr.send();
+	}
+}
+
 var kanjiFrameCache = {};
 
 function loadKanjiFrames(char) {

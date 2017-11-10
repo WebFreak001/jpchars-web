@@ -351,3 +351,19 @@ hr {
 	right: 0;
 	z-index: 1;
 }
+
+.vocabulary .kanji .meaning {
+	padding: 8px;
+}
+
+.vocabulary .kanji .meaning:after {
+	display: block;
+	content: "";
+	clear: both;
+}
+
+.vocabulary .kanji .meaning .character {
+	float: left;
+	font-size: 3em;
+	margin-right: 8px;
+}

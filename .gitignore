@@ -9,3 +9,4 @@ dub.selections.json
 *.exe
 package-lock.json
 node_modules
+/public/minikanji
