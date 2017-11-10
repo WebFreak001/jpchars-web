@@ -346,6 +346,7 @@ var vocabularyModule = {
 			this.showSolution();
 			stopTimelimit();
 		}
+		unsaved = true;
 	},
 	nextVocabulary: function () {
 		if (this.toLearn.length == 0) {
