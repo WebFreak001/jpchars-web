@@ -387,6 +387,8 @@ var vocabularyModule = {
 	},
 	showSolution: function () {
 		this.learn.querySelector(".solution").textContent = this.currentVoc[1];
+		for (var i = 0; i < this.currentVoc[1].length; i++)
+			this.drawCanvas.putAnimation(i, this.currentVoc[1][i]);
 		this.learn.querySelector(".romanization").textContent = this.hint;
 		if (this.learn.querySelector(".answer").disabled)
 			this.learn.querySelector(".answer").value = this.currentVoc[0];

@@ -57,15 +57,71 @@ function getKanjiSVG(char) {
 	var kanji = kanjiStrokes.querySelector("kanji[id=\"kvg:kanji_" + code + "\"]");
 	if (!kanji)
 		return null;
+	return kanji;
+}
+
+function makeKanjiImage(kanji) {
 	var children = "";
 	for (var i = 0; i < kanji.children.length; i++)
 		children += new XMLSerializer().serializeToString(kanji.children[i]);
 	var style = "<defs><style type=\"text/css\"><![CDATA[path{stroke:black;fill:none;stroke-linecap:round;stroke-linejoin:round}]]></style></defs>";
 	var svg = "<svg viewBox=\"0 0 109 109\" width=\"109\" height=\"109\" xmlns=\"http://www.w3.org/2000/svg\">" + style + children + "</svg>";
-	return "data:image/svg+xml," + encodeURIComponent(svg);
+	var img = new Image();
+	img.src = "data:image/svg+xml," + encodeURIComponent(svg);
+	return img;
 }
 
 loadKanjiStrokes();
+
+var kanjiFrameCache = {};
+
+function loadKanjiFrames(char) {
+	if (kanjiFrameCache[char] !== undefined)
+		return kanjiFrameCache[char];
+	kanjiFrameCache[char] = null;
+	var svg = getKanjiSVG(char);
+	if (!svg)
+		return kanjiFrameCache[char];
+	var paths = svg.querySelectorAll("path");
+	var strokes = [];
+	for (var i = 0; i < paths.length; i++) {
+		if (/-s\d+$/.test(paths[i].id)) {
+			var m = /^M(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)/.exec(paths[i].getAttribute("d"));
+			var entry = [paths[i], null];
+			if (m) {
+				var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+				circle.setAttribute("cx", m[1]);
+				circle.setAttribute("cy", m[2]);
+				circle.setAttribute("r", "3");
+				circle.setAttribute("fill", "red");
+				circle.setAttribute("style", "display:none");
+				paths[i].parentElement.insertBefore(circle, paths[i].nextSibling);
+				entry[1] = circle;
+			}
+			strokes.push(entry);
+			paths[i].setAttribute("style", "display:none");
+		}
+	}
+	if (!strokes.length)
+		return kanjiFrameCache[char];
+	kanjiFrameCache[char] = [];
+	function loadNext(char, strokeN) {
+		if (strokes[strokeN - 1] && strokes[strokeN - 1][1])
+			strokes[strokeN - 1][1].setAttribute("style", "display:none");
+		if (!strokes[strokeN])
+			return;
+		strokes[strokeN][0].removeAttribute("style");
+		if (strokes[strokeN][1])
+			strokes[strokeN][1].removeAttribute("style");
+		var img = makeKanjiImage(svg);
+		img.onload = function () {
+			kanjiFrameCache[char].push(img);
+			loadNext(char, strokeN + 1);
+		};
+	}
+	loadNext(char, 0);
+	return kanjiFrameCache[char];
+}
 
 function makeDrawCanvas(w, h) {
 	if (!w) w = 1;
@@ -84,12 +140,50 @@ function makeDrawCanvas(w, h) {
 		raw: null,
 		redrawTimer: 0,
 		locked: false,
+		strokeAnimationTimer: 0,
+		strokeAnimations: [],
+		putAnimation: function (n, char) {
+			if (!char) {
+				obj.strokeAnimations[n] = undefined;
+				return false;
+			}
+			var images = loadKanjiFrames(char);
+			if (images === null) {
+				obj.strokeAnimations[n] = undefined;
+				return false;
+			}
+			obj.strokeAnimations[n] = {
+				char: char,
+				frame: 0,
+				images: images
+			};
+			return true;
+		},
+		updateAnimation: function () {
+			var found = false;
+			for (var i = 0; i < obj.strokeAnimations.length; i++) {
+				if (!obj.strokeAnimations[i])
+					continue;
+				found = true;
+				obj.strokeAnimations[i].frame = (obj.strokeAnimations[i].frame + 1) % (obj.strokeAnimations[i].images.length + 1);
+			}
+			if (found)
+				obj.queueRedraw();
+		},
 		queueRedraw: function () {
 			if (!obj.raw)
 				return;
 			clearTimeout(obj.redrawTimer);
 			obj.redrawTimer = setTimeout(function () {
 				context.putImageData(obj.raw, 0, 0, 0, 0, canvas.width, canvas.height);
+				for (var i = 0; i < obj.strokeAnimations.length; i++) {
+					if (!obj.strokeAnimations[i] || !obj.strokeAnimations[i].images.length)
+						continue;
+					var frame = obj.strokeAnimations[i].images[obj.strokeAnimations[i].frame];
+					if (!frame)
+						continue;
+					context.drawImage(frame, (i % w) * s, Math.floor(i / w) * s, s, s);
+				}
 			}, 10);
 		},
 		clear: function () {
@@ -97,9 +191,12 @@ function makeDrawCanvas(w, h) {
 				return;
 			context.putImageData(obj.bg, 0, 0, 0, 0, canvas.width, canvas.height);
 			obj.raw = context.getImageData(0, 0, canvas.width, canvas.height);
+			obj.strokeAnimations = [];
+			obj.queueRedraw();
 		}
 	};
 	loadImage("/img/stroke_base.png", function (img) {
+		obj.strokeAnimationTimer = setInterval(obj.updateAnimation, 2000);
 		context.fillStyle = "#ddd";
 		context.fillRect(0, 0, canvas.width, canvas.height);
 		for (var y = 0; y < h; y++)

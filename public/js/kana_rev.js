@@ -27,6 +27,7 @@ var kanaRevModule = {
 		this.$.skip.textContent = this.$.skip.getAttribute("skip-text");
 		this.$.abort.disabled = false;
 		this.$.draw.locked = false;
+		this.$.draw.putAnimation(0);
 		this.confirming = false;
 	},
 	next: function (pop) {
@@ -64,6 +65,7 @@ var kanaRevModule = {
 			return;
 		}
 		this.$.draw.locked = true;
+		this.$.draw.putAnimation(0, this.current);
 		this.confirming = true;
 		stopTimelimit();
 		unsaved = true;
