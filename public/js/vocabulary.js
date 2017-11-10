@@ -302,6 +302,18 @@ var vocabularyModule = {
 			var v = loadVocabularyFromElement(pack);
 			vocabulary.push.apply(vocabulary, v);
 		}
+
+		var currentIndex = vocabulary.length, temporaryValue, randomIndex;
+
+		// While there remain elements to shuffle...
+		while (currentIndex > 0) {
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+
+			temporaryValue = vocabulary[currentIndex];
+			vocabulary[currentIndex] = vocabulary[randomIndex];
+			vocabulary[randomIndex] = temporaryValue;
+		}
 		this.learnVocabulary(vocabulary, mode);
 	},
 	learnVocabulary: function (vocabulary, mode) {
@@ -438,13 +450,13 @@ var vocabularyModule = {
 						var meanings = document.createElement("div");
 						meanings.className = "meanings";
 						meanings.textContent = "Meanings: " + stats.meanings.join(", ");
-						info.appendChild(meanings);	
+						info.appendChild(meanings);
 					}
 					if (stats.readings.length) {
 						var readings = document.createElement("div");
 						readings.className = "readings"; // TODO: kun, on
 						readings.textContent = "Readings: " + stats.readings.join(", ");
-						info.appendChild(readings);	
+						info.appendChild(readings);
 					}
 				});
 				this.learn.querySelector(".kanji").appendChild(info);
