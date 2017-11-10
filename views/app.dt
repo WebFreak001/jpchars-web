@@ -118,8 +118,6 @@ html
 		script(src="/material-components-web/dist/material-components-web.js")
 		script(src="/js/main.js")
 		script(src="/js/score.js")
-		script(src="/js/image_loader.js")
-		script(src="/js/draw.js")
 		- import std.algorithm;
 		- string[] ids;
 		- string[] addedScripts;

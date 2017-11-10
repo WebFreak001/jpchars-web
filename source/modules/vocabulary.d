@@ -46,7 +46,7 @@ class VocabularyModule : IModule
 
 	string[] scripts() const @property
 	{
-		return ["/js/autosuggest.js", "/js/draw.js", "/js/vocabulary.js"];
+		return ["/js/autosuggest.js", "/js/image_loader.js", "/js/draw.js", "/js/vocabulary.js"];
 	}
 
 	override string name(string language) const @property
