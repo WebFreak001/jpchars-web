@@ -115,9 +115,11 @@ html
 					svg.mdc-checkbox__checkmark(viewBox="0 0 24 24")
 						path.mdc-checkbox__checkmark__path(fill="none", stroke="white", d="M1.73,12.91 8.1,19.28 22.79,4.59")
 					.mdc-checkbox__mixedmark
+		- import std.conv;
+		- import vibe.core.file;
 		script(src="/material-components-web/dist/material-components-web.js")
-		script(src="/js/main.js")
-		script(src="/js/score.js")
+		script(src="/js/main.js" ~ '?' ~ ("public/js/main.js").getFileInfo.timeModified.stdTime.to!string(16))
+		script(src="/js/score.js" ~ '?' ~ ("public/js/score.js").getFileInfo.timeModified.stdTime.to!string(16))
 		- import std.algorithm;
 		- string[] ids;
 		- string[] addedScripts;
@@ -127,6 +129,6 @@ html
 			- foreach (script; mod.scripts)
 				- if (addedScripts.canFind(script)) continue;
 				- addedScripts ~= script;
-				script(src=script)
+				script(src=script ~ '?' ~ ("public" ~ script).getFileInfo.timeModified.stdTime.to!string(16))
 		- import vibe.data.json;
 		script loadScores(#{serializeToJson(ids)});
