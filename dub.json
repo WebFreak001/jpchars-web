@@ -4,6 +4,7 @@
 		"webfreak"
 	],
 	"dependencies": {
+		"wagomu": "~>1.0.0",
 		"vibe-d": "~>0.8.2-alpha.2",
 		"mongoschemad": "~>2.5.3"
 	},

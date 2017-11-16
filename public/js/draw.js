@@ -176,6 +176,11 @@ function makeDrawCanvas(w, h) {
 	var bs = getBrushSize();
 	canvas.width = w * s + 2;
 	canvas.height = h * s + 2;
+	canvas.style.width = canvas.width + "px";
+	canvas.style.height = canvas.height + "px";
+	var characters = [];
+	for (var i = 0; i < w * h; i++)
+		characters.push({ dots: [], starts: [] });
 	var obj = {
 		element: canvas,
 		context: context,
@@ -185,6 +190,7 @@ function makeDrawCanvas(w, h) {
 		locked: false,
 		strokeAnimationTimer: 0,
 		strokeAnimations: [],
+		characters: characters,
 		putAnimation: function (n, char) {
 			if (!char) {
 				obj.strokeAnimations[n] = undefined;
@@ -235,6 +241,8 @@ function makeDrawCanvas(w, h) {
 			context.putImageData(obj.bg, 0, 0, 0, 0, canvas.width, canvas.height);
 			obj.raw = context.getImageData(0, 0, canvas.width, canvas.height);
 			obj.strokeAnimations = [];
+			for (var i = 0; i < obj.characters.length; i++)
+				obj.characters[i] = { dots: [], starts: [] };
 			obj.queueRedraw();
 		}
 	};
@@ -249,8 +257,15 @@ function makeDrawCanvas(w, h) {
 		obj.raw = context.getImageData(0, 0, canvas.width, canvas.height);
 
 		var prevX, prevY;
-		function putDot(xx, yy, erase) {
+		function putDot(xx, yy, erase, start) {
+			var i = Math.floor(xx / s) + Math.floor(yy / s) * w;
 			var r = bs * (erase ? 2 : 1);
+			if (start)
+				addStartCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
+			else if (erase)
+				removeCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
+			else
+				placeCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
 			for (var oy = -r; oy <= r; oy++) {
 				if (y < 0 || y >= canvas.width)
 					continue;
@@ -265,7 +280,16 @@ function makeDrawCanvas(w, h) {
 						obj.raw.data[(x + y * canvas.width) * 4 + 2] = obj.bg.data[(x + y * canvas.width) * 4 + 2];
 						obj.raw.data[(x + y * canvas.width) * 4 + 3] = obj.bg.data[(x + y * canvas.width) * 4 + 3];
 					}
+					else if (start) {
+						obj.raw.data[(x + y * canvas.width) * 4] = 0xFF;
+						obj.raw.data[(x + y * canvas.width) * 4 + 1] = 0;
+						obj.raw.data[(x + y * canvas.width) * 4 + 2] = 0;
+						obj.raw.data[(x + y * canvas.width) * 4 + 3] = 0xFF;
+					}
 					else {
+						if (obj.raw.data[(x + y * canvas.width) * 4] == 0xFF && obj.raw.data[(x + y * canvas.width) * 4 + 1] == 0
+							&& obj.raw.data[(x + y * canvas.width) * 4 + 2] == 0)
+							continue;
 						obj.raw.data[(x + y * canvas.width) * 4] = 0;
 						obj.raw.data[(x + y * canvas.width) * 4 + 1] = 0;
 						obj.raw.data[(x + y * canvas.width) * 4 + 2] = 0;
@@ -277,6 +301,7 @@ function makeDrawCanvas(w, h) {
 
 		var mouseDown = false;
 		var erasing = false;
+		var drawX, drawY;
 
 		function draw(dstX, dstY, start) {
 			if (obj.locked || !mouseDown)
@@ -286,9 +311,16 @@ function makeDrawCanvas(w, h) {
 			if (start) {
 				prevX = dstX;
 				prevY = dstY;
+				drawX = Math.floor(dstX / s);
+				drawY = Math.floor(dstY / s);
 			}
 			line(prevX, prevY, dstX, dstY, function (x, y) {
-				putDot(x, y, erasing);
+				var tx = Math.floor(x / s);
+				var ty = Math.floor(y / s);
+				if (tx != drawX || ty != drawY)
+					return;
+				putDot(x, y, erasing, start);
+				start = false;
 			});
 			obj.queueRedraw();
 			prevX = dstX;
@@ -340,4 +372,68 @@ function makeDrawCanvas(w, h) {
 		};
 	});
 	return obj;
+}
+
+function addStartCharDot(dots, x, y) {
+	for (var i = 0; i < dots.dots.length; i += 2) {
+		var ox = dots.dots[i];
+		var oy = dots.dots[i + 1];
+
+		if ((ox - x) * (ox - x) + (oy - y) * (oy - y) < 50 * 50)
+			return;
+	}
+	dots.starts.push(x, y);
+	dots.dots.push(x, y);
+}
+
+function placeCharDot(dots, x, y) {
+	for (var i = 0; i < dots.dots.length; i += 2) {
+		var ox = dots.dots[i];
+		var oy = dots.dots[i + 1];
+
+		if ((ox - x) * (ox - x) + (oy - y) * (oy - y) < 50 * 50)
+			return;
+	}
+	dots.dots.push(x, y);
+}
+
+function removeCharDot(dots, x, y) {
+	for (var i = dots.dots.length - 2; i >= 0; i -= 2) {
+		var ox = dots.dots[i];
+		var oy = dots.dots[i + 1];
+
+		if ((ox - x) * (ox - x) + (oy - y) * (oy - y) < 80 * 80)
+			dots.dots.splice(i, 2);
+	}
+	for (var i = dots.starts.length - 2; i >= 0; i -= 2) {
+		var ox = dots.starts[i];
+		var oy = dots.starts[i + 1];
+
+		if ((ox - x) * (ox - x) + (oy - y) * (oy - y) < 50 * 50)
+			dots.starts.splice(i, 2);
+	}
+}
+
+function serializeCharacter(character) {
+	var strokes = character.starts.length / 2;
+	if (strokes > 35)
+		strokes = 35;
+	var serialization = strokes.toString(36);
+	for (var i = 0; i < Math.min(400, character.dots.length); i++) {
+		var n = Math.min(Math.max(Math.round(character.dots[i]), 0), 1000);
+		var s = n.toString(36);
+		if (s.length < 2)
+			s = "0" + s;
+		serialization += s;
+	}
+	return serialization;
+}
+
+function recognizeCharacter(character, cb) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/api/recognize?ch=" + encodeURIComponent(serializeCharacter(character)));
+	xhr.onload = function () {
+		cb(JSON.parse(xhr.responseText));
+	};
+	xhr.send();
 }

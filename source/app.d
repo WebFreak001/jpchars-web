@@ -12,6 +12,8 @@ import modules.imodule;
 
 import mongoschema;
 
+import wagomu;
+
 struct UserScore
 {
 	string user;
@@ -56,7 +58,7 @@ void main()
 
 	/*Vocabulary(BsonObjectID.init, SchemaDate.now, [
 		"en": "tree",
-		"jp": "木"
+		"jp": "木;;き"
 	], ["webfreak"]).save();*/
 
 	auto router = new URLRouter;
@@ -66,17 +68,21 @@ void main()
 	router.get("/api/list", &listScores);
 	router.get("/api/add", &addScore);
 	router.get("/api/kanji", &getKanji);
+	router.get("/api/recognize", &getRecognize);
 	router.post("/api/vocabulary", &postVocabulary);
 	router.get("/api/vocabulary/book", &getVocabularyBooks);
 	router.post("/api/vocabulary/book", &postVocabularyBook);
 	router.get("/api/vocabulary/suggest", &getVocabularySuggestion);
 	loadModules();
 	loadKanjis();
+	handwritingRecognizer.load("handwriting-ja.model");
 	writeFileUTF8(Path("public/minikanji"),
 			kanjis.filter!"a.frequency != 0 && a.frequency < 1000".map!"a.toMiniString".join("\n"));
 	listenHTTP(settings, router);
 	runApplication();
 }
+
+__gshared Recognizer handwritingRecognizer;
 
 struct KanjiInfo
 {
@@ -132,6 +138,27 @@ void loadKanjis()
 
 	kanjis = File("kanjidic", "r").byLine.drop(1).map!(KanjiInfo.fromLine)
 		.array.sort!"a.c<b.c".array;
+}
+
+void getRecognize(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+	string chs = req.query.get("ch");
+	if (chs.length < 3 || chs.length > 800)
+	{
+		res.writeBody("[]", HTTPStatus.badRequest, "application/json");
+		return;
+	}
+	auto numVec = cast(int)(chs.length - 1) / 4;
+	Character ch = Character(numVec, chs[0 .. 1].to!int(36));
+	foreach (i; 0 .. numVec)
+	{
+		float[4] v = 0;
+		v[0] = chs[1 + i * 4 .. 1 + 2 + i * 4].to!int(36);
+		v[1] = chs[1 + 2 + i * 4 .. 1 + 4 + i * 4].to!int(36);
+		ch.points[i] = v;
+	}
+	handwritingRecognizer.windowSize = req.query.get("ws", "0").to!int;
+	res.writeJsonBody(handwritingRecognizer.recognize(ch, 10));
 }
 
 void getKanji(scope HTTPServerRequest req, scope HTTPServerResponse res)
