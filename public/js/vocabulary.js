@@ -214,8 +214,7 @@ var vocabularyModule = {
 	},
 	showPackSelect: function () {
 		this.packselect.style.display = "block";
-		var createPackButton = document.getElementById("vocabulary-create-pack-button");
-		createPackButton.classList.remove("mdc-fab--exited");
+		document.getElementById("vocabulary-create-pack-button").classList.remove("mdc-fab--exited");
 	},
 	reloadPacks: function (soft) {
 		var packs = document.getElementById("vocabulary-packs");
@@ -331,6 +330,7 @@ var vocabularyModule = {
 		this.packselect.style.display = "none";
 		this.learn.style.display = "block";
 		this.nextVocabulary();
+		document.getElementById("vocabulary-create-pack-button").classList.add("mdc-fab--exited");
 	},
 	numLearn: 0,
 	toLearn: [],
