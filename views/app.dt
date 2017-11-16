@@ -1,5 +1,8 @@
 doctype html
 html
+	- import std.conv;
+	- import vibe.core.file;
+	- import std.algorithm;
 	head
 		meta(charset="utf-8")
 		meta(http-equiv="x-ua-compatible", content="ie=edge")
@@ -7,7 +10,7 @@ html
 		title jpchars
 		link(rel="stylesheet", href="/flag-icon-css/css/flag-icon.min.css")
 		link(rel="stylesheet", href="/material-components-web/dist/material-components-web.css")
-		link(rel="stylesheet", href="/css/main.css")
+		link(rel="stylesheet", href="/css/main.css?" ~ ("public/css/main.css").getFileInfo.timeModified.stdTime.to!string(16))
 		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
 		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 	body
@@ -115,12 +118,9 @@ html
 					svg.mdc-checkbox__checkmark(viewBox="0 0 24 24")
 						path.mdc-checkbox__checkmark__path(fill="none", stroke="white", d="M1.73,12.91 8.1,19.28 22.79,4.59")
 					.mdc-checkbox__mixedmark
-		- import std.conv;
-		- import vibe.core.file;
 		script(src="/material-components-web/dist/material-components-web.js")
 		script(src="/js/main.js" ~ '?' ~ ("public/js/main.js").getFileInfo.timeModified.stdTime.to!string(16))
 		script(src="/js/score.js" ~ '?' ~ ("public/js/score.js").getFileInfo.timeModified.stdTime.to!string(16))
-		- import std.algorithm;
 		- string[] ids;
 		- string[] addedScripts;
 		- foreach (mod; loadedModules)
