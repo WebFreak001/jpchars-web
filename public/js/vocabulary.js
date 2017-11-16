@@ -263,14 +263,16 @@ var vocabularyModule = {
 	unload: function () {
 	},
 	learnRandom: function () {
-		var vocabulary = [];
-		var packs = document.getElementById("vocabulary-packs").children;
-		for (var i = 0; i < packs.length; i++) {
-			var pack = packs[i];
-			if (pack.tagName != "LI")
-				continue;
-			var v = loadVocabularyFromElement(pack);
-			vocabulary.push.apply(vocabulary, v);
+		var vocabulary = this.getSelectedVocabulary();
+		if (!vocabulary.length) {
+			var packs = document.getElementById("vocabulary-packs").children;
+			for (var i = 0; i < packs.length; i++) {
+				var pack = packs[i];
+				if (pack.tagName != "LI")
+					continue;
+				var v = loadVocabularyFromElement(pack);
+				vocabulary.push.apply(vocabulary, v);
+			}
 		}
 		var currentIndex = vocabulary.length, temporaryValue, randomIndex;
 
@@ -290,7 +292,7 @@ var vocabularyModule = {
 			return alert("There is no vocabulary to learn from, create a pack first.");
 		this.learnVocabulary(vocabulary, 2);
 	},
-	learnSelected: function (mode) {
+	getSelectedVocabulary: function () {
 		var vocabulary = [];
 		var packs = document.getElementById("vocabulary-packs").children;
 		for (var i = 0; i < packs.length; i++) {
@@ -302,6 +304,10 @@ var vocabularyModule = {
 			var v = loadVocabularyFromElement(pack);
 			vocabulary.push.apply(vocabulary, v);
 		}
+		return vocabulary;
+	},
+	learnSelected: function (mode) {
+		var vocabulary = this.getSelectedVocabulary();
 
 		var currentIndex = vocabulary.length, temporaryValue, randomIndex;
 
