@@ -175,7 +175,7 @@ function makeDrawCanvas(w, h) {
 	var s = getCanvasSize() - 2;
 	var bs = getBrushSize();
 	canvas.width = w * s + 2;
-	canvas.height = h * s + 2;
+	canvas.height = h * s + 2 + 32;
 	canvas.style.width = canvas.width + "px";
 	canvas.style.height = canvas.height + "px";
 	var characters = [];
@@ -191,6 +191,7 @@ function makeDrawCanvas(w, h) {
 		strokeAnimationTimer: 0,
 		strokeAnimations: [],
 		characters: characters,
+		selectedTool: 0,
 		putAnimation: function (n, char) {
 			if (!char) {
 				obj.strokeAnimations[n] = undefined;
@@ -233,6 +234,22 @@ function makeDrawCanvas(w, h) {
 						continue;
 					context.drawImage(frame, (i % w) * s, Math.floor(i / w) * s, s, s);
 				}
+				context.save();
+				context.clearRect(0, canvas.height - 32, canvas.width, 32);
+				context.fillStyle = "black";
+				context.fillRect(0, canvas.height - 32, canvas.width / 2, 32);
+				context.lineWidth = 4;
+				context.strokeStyle = "gray";
+				for (var i = 0; i < 2; i++) {
+					context.beginPath();
+					context.rect(canvas.width / 2 * i + 2, canvas.height - 30, canvas.width / 2 - 4, 28);
+					context.stroke();
+				}
+				context.strokeStyle = "red";
+				context.beginPath();
+				context.rect(canvas.width / 2 * obj.selectedTool + 2, canvas.height - 30, canvas.width / 2 - 4, 28);
+				context.stroke();
+				context.restore();
 			}, 10);
 		},
 		clear: function () {
@@ -255,6 +272,8 @@ function makeDrawCanvas(w, h) {
 				context.drawImage(img, x * s, y * s, s, s);
 		obj.bg = context.getImageData(0, 0, canvas.width, canvas.height);
 		obj.raw = context.getImageData(0, 0, canvas.width, canvas.height);
+
+		obj.queueRedraw();
 
 		var prevX, prevY;
 		function putDot(xx, yy, erase, start) {
@@ -306,6 +325,13 @@ function makeDrawCanvas(w, h) {
 		function draw(dstX, dstY, start) {
 			if (obj.locked || !mouseDown)
 				return;
+			if (dstY > canvas.height - 32) {
+				if (start) {
+					obj.selectedTool = Math.floor(dstX / canvas.width * 2);
+					obj.queueRedraw();
+				}
+				return;
+			}
 			dstX = Math.floor(dstX);
 			dstY = Math.floor(dstY);
 			if (start) {
@@ -319,7 +345,7 @@ function makeDrawCanvas(w, h) {
 				var ty = Math.floor(y / s);
 				if (tx != drawX || ty != drawY)
 					return;
-				putDot(x, y, erasing, start);
+				putDot(x, y, obj.selectedTool == 1 || erasing, start);
 				start = false;
 			});
 			obj.queueRedraw();
