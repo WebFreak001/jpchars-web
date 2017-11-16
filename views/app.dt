@@ -51,6 +51,9 @@ html
 					.copyright
 						div: a(href="https://github.com/WebFreak001/jpchars-web") Source Code
 						div #[a(href="http://kanjivg.tagaini.net") KanjiVG] for strokes
+						div Character recognition based off #[a(href="https://tegaki.github.io/") Tegaki] Wagomu Engine
+						div #[a(href="https://materialdesignicons.com/") Material Design Icons]
+						div Built #{__DATE__} #{__TIME__}
 		.content
 			.mdc-toolbar.mdc-elevation--z4
 				.mdc-toolbar__row
