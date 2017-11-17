@@ -263,140 +263,141 @@ function makeDrawCanvas(w, h) {
 			obj.queueRedraw();
 		}
 	};
-	loadImage("/img/stroke_base.png", function (img) {
-		obj.strokeAnimationTimer = setInterval(obj.updateAnimation, 2000);
-		context.fillStyle = "#ddd";
-		context.fillRect(0, 0, canvas.width, canvas.height);
-		for (var y = 0; y < h; y++)
-			for (var x = 0; x < w; x++)
-				context.drawImage(img, x * s, y * s, s, s);
-		obj.bg = context.getImageData(0, 0, canvas.width, canvas.height);
-		obj.raw = context.getImageData(0, 0, canvas.width, canvas.height);
+	loadImage("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGIAAABiCAYAAACrpQYOAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AUVEi4ZBXlPDQAAAP9JREFUeNrt3DGOhDAQRUGMOInvfyX3VSAyQgSQINmN6kUbTDJb24O+VprSWtsXDW/1K5ijrf9Qa037JiIi/XtwESAEAoReH9aZy/yQdhEg9FuIiDi3BAiBACEQIATCsrasXYSPJoGwrAUChEAIBAhZ1i5CIEBY1i4ChECAEAgQsqwta4EAYVmDcBECAUIgBMKytqxdRIKLuA+i61/Z01jyum9e5yImqfSvkvPFWZ4RAgFCIEDIsnYRAgFiyKDzP2uBACEQIATCsrasXYSPJoGwrAVCIEAIBAhZ1i5CIEBY1i4ChECAEAgQsqwta4EAYVmDcBECIRAgBMKytqwfOgCQQ1pvz+H/5gAAAABJRU5ErkJggg==",
+		function (img) {
+			obj.strokeAnimationTimer = setInterval(obj.updateAnimation, 2000);
+			context.fillStyle = "#ddd";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			for (var y = 0; y < h; y++)
+				for (var x = 0; x < w; x++)
+					context.drawImage(img, x * s, y * s, s, s);
+			obj.bg = context.getImageData(0, 0, canvas.width, canvas.height);
+			obj.raw = context.getImageData(0, 0, canvas.width, canvas.height);
 
-		obj.queueRedraw();
+			obj.queueRedraw();
 
-		var prevX, prevY;
-		function putDot(xx, yy, erase, start) {
-			var i = Math.floor(xx / s) + Math.floor(yy / s) * w;
-			var r = bs * (erase ? 2 : 1);
-			if (start)
-				addStartCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
-			else if (erase)
-				removeCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
-			else
-				placeCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
-			for (var oy = -r; oy <= r; oy++) {
-				if (y < 0 || y >= canvas.width)
-					continue;
-				var y = yy + oy;
-				for (var ox = -r; ox <= r; ox++) {
-					var x = xx + ox;
-					if (x < 0 || x >= canvas.width)
+			var prevX, prevY;
+			function putDot(xx, yy, erase, start) {
+				var i = Math.floor(xx / s) + Math.floor(yy / s) * w;
+				var r = bs * (erase ? 2 : 1);
+				if (start)
+					addStartCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
+				else if (erase)
+					removeCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
+				else
+					placeCharDot(obj.characters[i], (xx / s % 1) * 1000, (yy / s % 1) * 1000);
+				for (var oy = -r; oy <= r; oy++) {
+					if (y < 0 || y >= canvas.width)
 						continue;
-					if (erase) {
-						obj.raw.data[(x + y * canvas.width) * 4] = obj.bg.data[(x + y * canvas.width) * 4];
-						obj.raw.data[(x + y * canvas.width) * 4 + 1] = obj.bg.data[(x + y * canvas.width) * 4 + 1];
-						obj.raw.data[(x + y * canvas.width) * 4 + 2] = obj.bg.data[(x + y * canvas.width) * 4 + 2];
-						obj.raw.data[(x + y * canvas.width) * 4 + 3] = obj.bg.data[(x + y * canvas.width) * 4 + 3];
-					}
-					else if (start) {
-						obj.raw.data[(x + y * canvas.width) * 4] = 0xFF;
-						obj.raw.data[(x + y * canvas.width) * 4 + 1] = 0;
-						obj.raw.data[(x + y * canvas.width) * 4 + 2] = 0;
-						obj.raw.data[(x + y * canvas.width) * 4 + 3] = 0xFF;
-					}
-					else {
-						if (obj.raw.data[(x + y * canvas.width) * 4] == 0xFF && obj.raw.data[(x + y * canvas.width) * 4 + 1] == 0
-							&& obj.raw.data[(x + y * canvas.width) * 4 + 2] == 0)
+					var y = yy + oy;
+					for (var ox = -r; ox <= r; ox++) {
+						var x = xx + ox;
+						if (x < 0 || x >= canvas.width)
 							continue;
-						obj.raw.data[(x + y * canvas.width) * 4] = 0;
-						obj.raw.data[(x + y * canvas.width) * 4 + 1] = 0;
-						obj.raw.data[(x + y * canvas.width) * 4 + 2] = 0;
-						obj.raw.data[(x + y * canvas.width) * 4 + 3] = 0xFF;
+						if (erase) {
+							obj.raw.data[(x + y * canvas.width) * 4] = obj.bg.data[(x + y * canvas.width) * 4];
+							obj.raw.data[(x + y * canvas.width) * 4 + 1] = obj.bg.data[(x + y * canvas.width) * 4 + 1];
+							obj.raw.data[(x + y * canvas.width) * 4 + 2] = obj.bg.data[(x + y * canvas.width) * 4 + 2];
+							obj.raw.data[(x + y * canvas.width) * 4 + 3] = obj.bg.data[(x + y * canvas.width) * 4 + 3];
+						}
+						else if (start) {
+							obj.raw.data[(x + y * canvas.width) * 4] = 0xFF;
+							obj.raw.data[(x + y * canvas.width) * 4 + 1] = 0;
+							obj.raw.data[(x + y * canvas.width) * 4 + 2] = 0;
+							obj.raw.data[(x + y * canvas.width) * 4 + 3] = 0xFF;
+						}
+						else {
+							if (obj.raw.data[(x + y * canvas.width) * 4] == 0xFF && obj.raw.data[(x + y * canvas.width) * 4 + 1] == 0
+								&& obj.raw.data[(x + y * canvas.width) * 4 + 2] == 0)
+								continue;
+							obj.raw.data[(x + y * canvas.width) * 4] = 0;
+							obj.raw.data[(x + y * canvas.width) * 4 + 1] = 0;
+							obj.raw.data[(x + y * canvas.width) * 4 + 2] = 0;
+							obj.raw.data[(x + y * canvas.width) * 4 + 3] = 0xFF;
+						}
 					}
 				}
 			}
-		}
 
-		var mouseDown = false;
-		var erasing = false;
-		var drawX, drawY;
+			var mouseDown = false;
+			var erasing = false;
+			var drawX, drawY;
 
-		function draw(dstX, dstY, start) {
-			if (obj.locked || !mouseDown)
-				return;
-			if (dstY > canvas.height - 32) {
-				if (start) {
-					obj.selectedTool = Math.floor(dstX / canvas.width * 2);
-					obj.queueRedraw();
+			function draw(dstX, dstY, start) {
+				if (obj.locked || !mouseDown)
+					return;
+				if (dstY > canvas.height - 32) {
+					if (start) {
+						obj.selectedTool = Math.floor(dstX / canvas.width * 2);
+						obj.queueRedraw();
+					}
+					return;
 				}
-				return;
-			}
-			dstX = Math.floor(dstX);
-			dstY = Math.floor(dstY);
-			if (start) {
+				dstX = Math.floor(dstX);
+				dstY = Math.floor(dstY);
+				if (start) {
+					prevX = dstX;
+					prevY = dstY;
+					drawX = Math.floor(dstX / s);
+					drawY = Math.floor(dstY / s);
+				}
+				line(prevX, prevY, dstX, dstY, function (x, y) {
+					var tx = Math.floor(x / s);
+					var ty = Math.floor(y / s);
+					if (tx != drawX || ty != drawY)
+						return;
+					putDot(x, y, obj.selectedTool == 1 || erasing, start);
+					start = false;
+				});
+				obj.queueRedraw();
 				prevX = dstX;
 				prevY = dstY;
-				drawX = Math.floor(dstX / s);
-				drawY = Math.floor(dstY / s);
 			}
-			line(prevX, prevY, dstX, dstY, function (x, y) {
-				var tx = Math.floor(x / s);
-				var ty = Math.floor(y / s);
-				if (tx != drawX || ty != drawY)
-					return;
-				putDot(x, y, obj.selectedTool == 1 || erasing, start);
-				start = false;
-			});
-			obj.queueRedraw();
-			prevX = dstX;
-			prevY = dstY;
-		}
 
-		canvas.ontouchstart = function (e) {
-			e.preventDefault();
-			if (canvas.setCapture)
-				canvas.setCapture();
-			mouseDown = true;
-			var t = e.targetTouches.length > 0 ? e.targetTouches[0] : e.touches[0];
-			var x = t.pageX - canvas.offsetLeft;
-			var y = t.pageY - canvas.offsetTop;
-			draw(x, y, true);
-		};
-		canvas.ontouchmove = function (e) {
-			e.preventDefault();
-			var t = e.targetTouches.length > 0 ? e.targetTouches[0] : e.touches[0];
-			var x = t.pageX - canvas.offsetLeft;
-			var y = t.pageY - canvas.offsetTop;
-			draw(x, y);
-		};
-		canvas.ontouchend = function (e) {
-			mouseDown = false;
-		};
-		canvas.ontouchcancel = function (e) {
-			mouseDown = false;
-		};
-		canvas.oncontextmenu = function (e) {
-			e.preventDefault();
-		};
-		canvas.onmousedown = function (e) {
-			erasing = e.button == 2;
-			e.preventDefault();
-			if (canvas.setCapture)
-				canvas.setCapture();
-			mouseDown = true;
-			draw(e.offsetX || e.layerX, e.offsetY || e.layerY, true);
-		};
-		canvas.onmousemove = function (e) {
-			if (mouseDown) {
+			canvas.ontouchstart = function (e) {
 				e.preventDefault();
-				draw(e.offsetX || e.layerX, e.offsetY || e.layerY);
-			}
-		};
-		window.onmouseup = function (e) {
-			mouseDown = false;
-		};
-	});
+				if (canvas.setCapture)
+					canvas.setCapture();
+				mouseDown = true;
+				var t = e.targetTouches.length > 0 ? e.targetTouches[0] : e.touches[0];
+				var x = t.pageX - canvas.offsetLeft;
+				var y = t.pageY - canvas.offsetTop;
+				draw(x, y, true);
+			};
+			canvas.ontouchmove = function (e) {
+				e.preventDefault();
+				var t = e.targetTouches.length > 0 ? e.targetTouches[0] : e.touches[0];
+				var x = t.pageX - canvas.offsetLeft;
+				var y = t.pageY - canvas.offsetTop;
+				draw(x, y);
+			};
+			canvas.ontouchend = function (e) {
+				mouseDown = false;
+			};
+			canvas.ontouchcancel = function (e) {
+				mouseDown = false;
+			};
+			canvas.oncontextmenu = function (e) {
+				e.preventDefault();
+			};
+			canvas.onmousedown = function (e) {
+				erasing = e.button == 2;
+				e.preventDefault();
+				if (canvas.setCapture)
+					canvas.setCapture();
+				mouseDown = true;
+				draw(e.offsetX || e.layerX, e.offsetY || e.layerY, true);
+			};
+			canvas.onmousemove = function (e) {
+				if (mouseDown) {
+					e.preventDefault();
+					draw(e.offsetX || e.layerX, e.offsetY || e.layerY);
+				}
+			};
+			window.onmouseup = function (e) {
+				mouseDown = false;
+			};
+		});
 	return obj;
 }
 
