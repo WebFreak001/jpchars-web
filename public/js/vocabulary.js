@@ -346,22 +346,14 @@ var vocabularyModule = {
 			}
 		}
 
-		console.log(JSON.stringify(vocabulary));
-
 		var currentIndex = vocabulary.length;
 		var problems = listProblematic();
 		var origProblems = problems.length;
 
-		console.log(currentIndex);
 		currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, true);
-		console.log(currentIndex);
 		currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, false);
 
-		console.log(currentIndex);
-		console.log(JSON.stringify(vocabulary));
-
 		shuffleArray(vocabulary, currentIndex, 10);
-		console.log(JSON.stringify(vocabulary));
 
 		if (vocabulary.length > 10)
 			vocabulary = vocabulary.slice(-10);
