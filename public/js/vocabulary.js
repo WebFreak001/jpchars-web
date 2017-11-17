@@ -45,6 +45,78 @@ function suggestTranslation(id, ev) {
 	}, 500);
 }
 
+function addProblematic(problem) {
+	var existing = listProblematic();
+	var problems = listProblematic();
+	for (var i = problems.length - 1; i >= 0; i--)
+		if (problems[i].from == problem.from && problems[i].to == problem.from) {
+			if (problems[i].important == problem.important) {
+				problems[i].important = problem.important;
+				setProblematic(problems);
+			}
+			return;
+		}
+	problems.push(problem);
+	setProblematic(problems);
+}
+
+function clearProblematic(vocabulary) {
+	var problems = listProblematic();
+	for (var i = problems.length - 1; i >= 0; i--)
+		if (problems[i].from == vocabulary[0] && problems[i].to == vocabulary[1])
+			problems.splice(i, 1);
+	setProblematic(problems);
+}
+
+function setProblematic(problems) {
+	if (Array.isArray(problems))
+		window.localStorage.setItem("vocabulary.problematic", JSON.stringify(problems));
+}
+
+function listProblematic() {
+	return JSON.parse(window.localStorage.getItem("vocabulary.problematic") || "[]");
+}
+
+function fixProblematicInRandom(problems, array, max, index, important) {
+	for (var i = 0; i < index; i++) {
+		var voc = array[i];
+		for (var j = problems.length - 1; j >= 0; j--) {
+			if (voc[0] == problems[j].from && voc[1] == problems[j].to && problems[j].important == important) {
+				var tmp = array[index - 1];
+				array[index - 1] = [problems[j].from, problems[j].to];
+				array[i] = tmp;
+				index--;
+				i--;
+				problems.slice(j, 1);
+				if (index <= max)
+					return index;
+				break;
+			}
+		}
+	}
+	return index;
+}
+
+function shuffleArray(array, start, max) {
+	var currentIndex = array.length, temporaryValue, randomIndex;
+	var shuffleEnd = 0;
+
+	if (start !== undefined)
+		currentIndex = start;
+	if (max !== undefined)
+		shuffleEnd = Math.max(0, array.length - max);
+
+	// While there remain elements to shuffle...
+	while (currentIndex > shuffleEnd) {
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex--;
+
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+	}
+}
+
 function validateJapaneseVocabularyInput(s) {
 	if (s.indexOf(";;") != -1 || s.indexOf("；；") != -1)
 		return true;
@@ -273,17 +345,23 @@ var vocabularyModule = {
 				vocabulary.push.apply(vocabulary, v);
 			}
 		}
-		var currentIndex = vocabulary.length, temporaryValue, randomIndex;
 
-		// While there remain elements to shuffle...
-		while (currentIndex > 0 && currentIndex > vocabulary.length - 10) {
-			randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex--;
+		console.log(JSON.stringify(vocabulary));
 
-			temporaryValue = vocabulary[currentIndex];
-			vocabulary[currentIndex] = vocabulary[randomIndex];
-			vocabulary[randomIndex] = temporaryValue;
-		}
+		var currentIndex = vocabulary.length;
+		var problems = listProblematic();
+		var origProblems = problems.length;
+
+		console.log(currentIndex);
+		currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, true);
+		console.log(currentIndex);
+		currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, false);
+
+		console.log(currentIndex);
+		console.log(JSON.stringify(vocabulary));
+
+		shuffleArray(vocabulary, currentIndex, 10);
+		console.log(JSON.stringify(vocabulary));
 
 		if (vocabulary.length > 10)
 			vocabulary = vocabulary.slice(-10);
@@ -307,18 +385,7 @@ var vocabularyModule = {
 	},
 	learnSelected: function (mode) {
 		var vocabulary = this.getSelectedVocabulary();
-
-		var currentIndex = vocabulary.length, temporaryValue, randomIndex;
-
-		// While there remain elements to shuffle...
-		while (currentIndex > 0) {
-			randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex--;
-
-			temporaryValue = vocabulary[currentIndex];
-			vocabulary[currentIndex] = vocabulary[randomIndex];
-			vocabulary[randomIndex] = temporaryValue;
-		}
+		shuffleArray(vocabulary);
 		this.learnVocabulary(vocabulary, mode);
 	},
 	learnVocabulary: function (vocabulary, mode) {
@@ -335,6 +402,7 @@ var vocabularyModule = {
 	numLearn: 0,
 	toLearn: [],
 	currentVoc: ["", ""],
+	currentFullVoc: ["", ""],
 	learnMode: 0,
 	hint: "",
 	validating: false,
@@ -353,6 +421,15 @@ var vocabularyModule = {
 				this.partly++;
 			else
 				this.wrong++;
+
+			if (state > 0) {
+				addProblematic({
+					from: this.currentFullVoc[0],
+					to: this.currentFullVoc[1],
+					important: state == 2
+				});
+			}
+			else clearProblematic(this.currentFullVoc);
 			this.total++;
 			confirmBtn.textContent = confirmBtn.getAttribute("confirm-text");
 			partialBtn.disabled = true;
@@ -381,6 +458,7 @@ var vocabularyModule = {
 			return;
 		} else {
 			var v = this.toLearn.pop();
+			this.currentFullVoc = JSON.parse(JSON.stringify(v));
 			this.currentVoc = v;
 			var useB = this.learnMode == 1 || (this.learnMode == 2 && Math.random() > 0.5);
 			this.hint = "";
