@@ -343,8 +343,12 @@ void loadModules()
 	import modules.kana : Kana;
 	import modules.vocabulary : VocabularyModule;
 
+	loadedModules ~= new MarkdownModule(TranslatedString(["en" : "Introduction"]),
+			"public/md/home.md");
 	loadedModules ~= VocabularyModule.instance;
 	loadedModules ~= new ModuleSeparator(TranslatedString(["en" : "Kana"]));
+	loadedModules ~= new MarkdownModule(TranslatedString(["en"
+			: "Kana Cheatsheet"]), "public/md/kana-cheatsheet.md");
 	loadedModules ~= Kana.hiragana;
 	loadedModules ~= Kana.katakana;
 	loadedModules ~= new ModuleSeparator(TranslatedString(["en" : "Reverse Kana"]));

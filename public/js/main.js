@@ -13,7 +13,8 @@ function loadPage(id) {
 	var newActiveTab = document.querySelector(".modules > a[aria-controls=" + id + "]");
 	if (newActivePanel) {
 		newActivePanel.classList.add("active");
-		activePanel.setAttribute("aria-hidden", "false");
+		if (activePanel)
+			activePanel.setAttribute("aria-hidden", "false");
 		newActiveTab.classList.add("mdc-permanent-drawer--selected");
 	}
 
@@ -260,12 +261,12 @@ function expandLanguage(id) {
 
 function languageIcon(id) {
 	switch (id) {
-	case "en":
-		id = "gb";
-		break;
-	case "ja":
-		id = "jp";
-		break;
+		case "en":
+			id = "gb";
+			break;
+		case "ja":
+			id = "jp";
+			break;
 	}
 	return "flag-icon-" + id;
 }
@@ -305,6 +306,7 @@ window.onload = function () {
 	username = window.localStorage.getItem("username");
 	if (!username) {
 		startupDialog.show();
+		loadModule("md-home");
 	}
 	else if (username == "no") {
 		shouldSync = false;

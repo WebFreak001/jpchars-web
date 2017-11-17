@@ -65,3 +65,52 @@ class ModuleSeparator : IModule
 		return null;
 	}
 }
+
+class MarkdownModule : IModule
+{
+	TranslatedString translatedName;
+	string path;
+
+	this(TranslatedString translatedName, string path)
+	{
+		this.translatedName = translatedName;
+		this.path = path;
+	}
+
+	string id() const @property
+	{
+		import std.path : baseName, stripExtension;
+
+		return "md-" ~ path.baseName.stripExtension;
+	}
+
+	string icon() const @property
+	{
+		return "help";
+	}
+
+	string[] scripts() const @property
+	{
+		return null;
+	}
+
+	string name(string language) const @property
+	{
+		return translatedName.translate(language);
+	}
+
+	string description(string language) const @property
+	{
+		return null;
+	}
+
+	string render(string language) const
+	{
+		import vibe.core.file : readFileUTF8;
+		import vibe.textfilter.markdown : filterMarkdown;
+		import std.array : replace;
+
+		return "<div class=\"markdown mdc-elevation--z5\">" ~ filterMarkdown(readFileUTF8(path))
+			.replace(" id=\"", " name=\"") ~ "</div>";
+	}
+}

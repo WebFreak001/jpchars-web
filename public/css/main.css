@@ -223,6 +223,31 @@ hr {
 	margin-bottom: 8px;
 }
 
+.markdown {
+	padding: 16px;
+	background: white;
+	margin: 16px auto;
+	max-width: 1000px;
+}
+
+.markdown table {
+	width: 100%;
+}
+
+#md-kana-cheatsheet table {
+	border-collapse: collapse;
+}
+
+#md-kana-cheatsheet table td {
+	text-align: center;
+	width: 8.33333%;
+	border: 1px solid rgba(0, 0, 0, 0.13);
+}
+
+#md-kana-cheatsheet table th {
+	border: 1px solid rgba(0, 0, 0, 0.13);
+}
+
 
 /* Kana module */
 
