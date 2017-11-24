@@ -48,7 +48,7 @@ function loadModule(id) {
 }
 
 function unloadModule() {
-	stopTimelimit();
+	stopTimelimit(true);
 	if (activeModule && !unsaved && modules[activeModule] && modules[activeModule].unload) {
 		if (modules[activeModule].unload(activeModule) === false)
 			return;
@@ -96,7 +96,9 @@ var scoreDialog;
 var scoreDialogElement;
 
 function showRating(id, obj, score, total) {
-	stopTimelimit();
+	if (total == 0)
+		total = 1;
+	stopTimelimit(true);
 	if (modules[activeModule] && modules[activeModule].unload)
 		modules[activeModule].unload(activeModule);
 	activeModule = undefined;
@@ -144,10 +146,12 @@ var timelimitElement;
 var timelimitRunning;
 var timelimitRemaining;
 var timelimitMax;
+var timelimitForce;
 
-function setTimelimit(elem, ms, cb) {
-	if (!timersEnabled)
+function setTimelimit(elem, ms, cb, force) {
+	if (!timersEnabled && !force)
 		return;
+	timelimitForce = force;
 	timelimitElement = new mdc.linearProgress.MDCLinearProgress(elem);
 	timelimitElement.progress = 0;
 	timelimitMax = timelimitRemaining = ms;
@@ -159,13 +163,15 @@ function setTimelimit(elem, ms, cb) {
 		timelimitRemaining -= 10;
 		timelimitElement.progress = (timelimitMax - timelimitRemaining) / timelimitMax;
 		if (timelimitRemaining <= 0) {
-			stopTimelimit();
+			stopTimelimit(true);
 			cb();
 		}
 	}, 10);
 }
 
-function pauseTimelimit() {
+function pauseTimelimit(force) {
+	if (timelimitForce && !force)
+		return;
 	timelimitRunning = false;
 }
 
@@ -173,7 +179,9 @@ function resumeTimelimit() {
 	timelimitRunning = true;
 }
 
-function stopTimelimit() {
+function stopTimelimit(force) {
+	if (timelimitForce && !force)
+		return;
 	if (timelimitElement)
 		timelimitElement.progress = 0;
 	timelimitRunning = false;

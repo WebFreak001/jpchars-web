@@ -4,6 +4,7 @@ import std.algorithm;
 import std.array;
 import std.conv;
 import std.functional;
+import std.random;
 import std.range;
 import std.string;
 import std.string : indexOfAny;
@@ -71,6 +72,7 @@ void main()
 	router.get("/api/add", &addScore);
 	router.get("/api/kanji", &getKanji);
 	router.get("/api/recognize", &getRecognize);
+	router.get("/api/speedtype", &getSpeedtype);
 	router.post("/api/vocabulary", &postVocabulary);
 	router.get("/api/vocabulary/book", &getVocabularyBooks);
 	router.post("/api/vocabulary/book", &postVocabularyBook);
@@ -174,6 +176,31 @@ void getKanji(scope HTTPServerRequest req, scope HTTPServerResponse res)
 		res.writeBody("false", 404, "application/json");
 	else
 		res.writeJsonBody(ret.front);
+}
+
+void getSpeedtype(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+	import modules.vocabulary : Vocabulary;
+
+	string lang = req.query.get("lang", "ja");
+	string preview = req.query.get("lang_preview", "en");
+
+	string[2][] ret;
+
+	foreach (voc; Vocabulary.findAll().sort(["date" : -1]))
+	{
+		string* tr = lang in voc.translations;
+		if (!tr || !tr.length)
+			continue;
+		if (ret.canFind!(a => a[0] == *tr))
+			continue;
+		string* b = preview in voc.translations;
+		ret ~= [*tr, b ? *b : ""];
+	}
+
+	ret.partialShuffle(min(100, ret.length));
+
+	res.writeJsonBody(ret[0 .. min(100, $)]);
 }
 
 void postVocabulary(scope HTTPServerRequest req, scope HTTPServerResponse res)
@@ -344,10 +371,12 @@ void loadModules()
 {
 	import modules.kana : Kana;
 	import modules.vocabulary : VocabularyModule;
+	import modules.speedtype : SpeedTypeModule;
 
 	loadedModules ~= new MarkdownModule(TranslatedString(["en" : "Introduction"]),
 			"public/md/home.md");
 	loadedModules ~= VocabularyModule.instance;
+	loadedModules ~= SpeedTypeModule.instance;
 	loadedModules ~= new ModuleSeparator(TranslatedString(["en" : "Kana"]));
 	loadedModules ~= new MarkdownModule(TranslatedString(["en"
 			: "Kana Cheatsheet"]), "public/md/kana-cheatsheet.md");

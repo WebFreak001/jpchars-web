@@ -393,3 +393,31 @@ hr {
 	font-size: 3em;
 	margin-right: 8px;
 }
+
+
+/* SpeedType module */
+
+.speedtype {
+	padding: 16px;
+	max-width: 600px;
+	margin: 16px auto;
+	background: white;
+	text-align: center;
+}
+
+.speedtype .next {
+	padding: 8px;
+	color: rgba(0, 0, 0, 0.54);
+	font-size: 1.5em;
+}
+
+.speedtype .current {
+	padding: 16px;
+	color: rgba(0, 0, 0, 0.87);
+	font-size: 2.5em;
+}
+
+.speedtype .translation {
+	padding: 8px;
+	color: rgba(0, 0, 0, 0.54);
+}
