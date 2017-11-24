@@ -180,22 +180,31 @@ void getKanji(scope HTTPServerRequest req, scope HTTPServerResponse res)
 
 void getSpeedtype(scope HTTPServerRequest req, scope HTTPServerResponse res)
 {
-	import modules.vocabulary : Vocabulary;
+	import modules.vocabulary : Vocabulary, VocabularyBook;
+
+	string user = req.query.get("user", "");
+	enforceBadRequest(user.length, "Username required for speedtyping");
 
 	string lang = req.query.get("lang", "ja");
 	string preview = req.query.get("lang_preview", "en");
 
 	string[2][] ret;
 
-	foreach (voc; Vocabulary.findAll().sort(["date" : -1]))
+	foreach (book; VocabularyBook.findRange(["creator" : user.hashUsername]))
 	{
-		string* tr = lang in voc.translations;
-		if (!tr || !tr.length)
-			continue;
-		if (ret.canFind!(a => a[0] == *tr))
-			continue;
-		string* b = preview in voc.translations;
-		ret ~= [*tr, b ? *b : ""];
+		foreach (id; book.vocabulary)
+		{
+			auto voc = Vocabulary.tryFindById(id);
+			if (voc.isNull)
+				continue;
+			string* tr = lang in voc.translations;
+			if (!tr || !tr.length)
+				continue;
+			if (ret.canFind!(a => a[0] == *tr))
+				continue;
+			string* b = preview in voc.translations;
+			ret ~= [*tr, b ? *b : ""];
+		}
 	}
 
 	ret.partialShuffle(min(200, ret.length));

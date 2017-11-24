@@ -62,7 +62,10 @@ var speedtypeModule = {
 	},
 	init: function () {
 		if (!this.todo.length)
+		{
+			alert("You need to create a vocabulary book before being able to speedtype");
 			return;
+		}
 		var firstKey = true;
 		var self = this;
 		this.input.onkeydown = function (e) {
