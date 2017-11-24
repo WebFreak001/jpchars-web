@@ -62,8 +62,10 @@ void main()
 	], ["webfreak"]).save();*/
 
 	auto router = new URLRouter;
-	router.get("*", serveStaticFiles("node_modules"));
-	router.get("*", serveStaticFiles("public"));
+	auto longCache = new HTTPFileServerSettings();
+	longCache.maxAge = 365.days;
+	router.get("*", serveStaticFiles("node_modules", longCache));
+	router.get("*", serveStaticFiles("public", longCache));
 	router.get("/", &index);
 	router.get("/api/list", &listScores);
 	router.get("/api/add", &addScore);
