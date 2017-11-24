@@ -198,9 +198,9 @@ void getSpeedtype(scope HTTPServerRequest req, scope HTTPServerResponse res)
 		ret ~= [*tr, b ? *b : ""];
 	}
 
-	ret.partialShuffle(min(100, ret.length));
+	ret.partialShuffle(min(200, ret.length));
 
-	res.writeJsonBody(ret[0 .. min(100, $)]);
+	res.writeJsonBody(ret[0 .. min(200, $)]);
 }
 
 void postVocabulary(scope HTTPServerRequest req, scope HTTPServerResponse res)
