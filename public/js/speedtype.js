@@ -20,7 +20,7 @@ var speedtypeModule = {
 		this.translation = this.page.querySelector(".translation");
 		var self = this;
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/api/speedtype");
+		xhr.open("GET", "/api/speedtype?user=" + encodeURIComponent(username));
 		xhr.onload = function () {
 			self.todo = JSON.parse(xhr.responseText);
 			self.init();
