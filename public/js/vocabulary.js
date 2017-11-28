@@ -122,7 +122,7 @@ function validateJapaneseVocabularyInput(s) {
 		return true;
 	for (var i = 0; i < s.length; i++) {
 		var c = s.charCodeAt(i);
-		if (mightBeKanji(c)) continue;
+		if (!mightBeKanji(c)) continue;
 		alert("Please provide a romanization using kana after your japanese string separated with ;;\n\nExample: 日本語;;に・ほん・ご\n\n. will be converted to ・");
 		return false;
 	}
