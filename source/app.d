@@ -73,7 +73,9 @@ void main()
 	router.get("/api/kanji", &getKanji);
 	router.get("/api/recognize", &getRecognize);
 	router.get("/api/speedtype", &getSpeedtype);
+	router.get("/api/vocabulary", &getVocabularyBook);
 	router.post("/api/vocabulary", &postVocabulary);
+	router.get("/api/vocabulary/book/all", &getAllVocabularyBooks);
 	router.get("/api/vocabulary/book", &getVocabularyBooks);
 	router.post("/api/vocabulary/book", &postVocabularyBook);
 	router.get("/api/vocabulary/suggest", &getVocabularySuggestion);
@@ -237,6 +239,56 @@ void postVocabulary(scope HTTPServerRequest req, scope HTTPServerResponse res)
 		v.contributors ~= creator;
 	v.save();
 	res.writeJsonBody(v.bsonID);
+}
+
+void getAllVocabularyBooks(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+	import modules.vocabulary : Vocabulary, VocabularyBook;
+
+	Json ret = Json.emptyArray;
+
+	foreach (book; VocabularyBook.findAll())
+	{
+		Json obj = Json.emptyObject;
+
+		obj["_id"] = Json(book.bsonID.toString);
+		obj["creator"] = Json(book.creator);
+		obj["name"] = Json(book.name);
+		obj["lang1"] = Json(book.lang1);
+		obj["lang2"] = Json(book.lang2);
+		obj["vocabulary"] = Json(book.vocabulary.length);
+
+		ret.appendArrayElement(obj);
+	}
+
+	res.writeJsonBody(ret);
+}
+
+void getVocabularyBook(scope HTTPServerRequest req, scope HTTPServerResponse res)
+{
+
+	import modules.vocabulary : Vocabulary, VocabularyBook;
+
+	string id = req.query.get("id", "");
+	enforceBadRequest(id.length, "id required for getting a vocabulary book");
+
+	Json ret = Json.emptyArray;
+
+	auto book = VocabularyBook.tryFindById(id);
+
+	if (!book.isNull)
+	{
+		foreach (vid; book.vocabulary)
+		{
+			auto voc = Vocabulary.tryFindById(vid);
+			if (voc.isNull)
+				continue;
+			ret.appendArrayElement(voc.toSchemaBson!Vocabulary.toJson);
+		}
+		res.writeJsonBody(ret);
+	}
+	else
+		res.writeJsonBody(ret);
 }
 
 void getVocabularyBooks(scope HTTPServerRequest req, scope HTTPServerResponse res)

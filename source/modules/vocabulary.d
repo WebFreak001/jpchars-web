@@ -62,11 +62,24 @@ class VocabularyModule : IModule
 	override string render(string language) const
 	{
 		import d_to_html;
+		import config : availableLanguages;
+
+		Element[] langs1;
+		foreach (lang; availableLanguages)
+			langs1 ~= option(lang);
+		auto langs2 = langs1[];
+		langs1[0]._attributes["selected"] = "selected";
+		langs2[1]._attributes["selected"] = "selected";
 
 		//dfmt off
 		return div(class_="vocabulary mdc-elevation--z5",
-			button(attr!"id"="vocabulary-create-pack-button", class_="mdc-fab mdc-fab--exited material-icons", onclick="vocabularyModule.creator.showNew()", attr!"aria-label"="Add",
-				span(class_="mdc-fab__icon", "add")
+			div(class_="fab-group",
+				button(attr!"id"="vocabulary-import-pack-button", class_="mdc-fab material-icons", onclick="vocabularyModule.creator.showImport()", title="Download Vocabulary",
+					span(class_="mdc-fab__icon", "import_contacts")
+				),
+				button(attr!"id"="vocabulary-create-pack-button", class_="mdc-fab mdc-fab--exited material-icons", onclick="vocabularyModule.creator.showNew()", title="Add",
+					span(class_="mdc-fab__icon", "add")
+				)
 			),
 			section.packselect(
 				button(class_="random mdc-button", "Random Vocabulary", onclick="vocabularyModule.learnRandom()"),
@@ -123,14 +136,12 @@ class VocabularyModule : IModule
 						),
 						label("Language 1",
 							select(attr!"id"="vocadd_lang1", onchange="vocabularyModule.creator.updateLang()",
-								option(selected, "en"),
-								option("ja"),
+								langs1
 							)
 						),
 						label("Language 2",
 							select(attr!"id"="vocadd_lang2", onchange="vocabularyModule.creator.updateLang()",
-								option("en"),
-								option(selected, "ja"),
+								langs2
 							)
 						),
 						div(class_="vocabulary-create-topbar",
@@ -158,6 +169,24 @@ class VocabularyModule : IModule
 					),
 					footer(class_="mdc-dialog__footer",
 						button(class_="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept", "Save"),
+						button(class_="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--cancel", "Cancel")
+					)
+				),
+				div(class_="mdc-dialog__backdrop")
+			),
+			aside(class_="mdc-dialog", attr!"id"="vocabulary-import", role="alertdialog",
+					attr!"aria-hidden"="true", attr!"aria-labelledby"="vocabulary-import-dialog-label",
+					attr!"aria-describedby"="vocabulary-import-dialog-desc",
+				div(class_="mdc-dialog__surface",
+					header(class_="mdc-dialog__header",
+						h2(class_="mdc-dialog__header__title", attr!"id"="vocabulary-import-dialog-label", "Download Vocabulary Book")
+					),
+					section(attr!"id"="vocabulary-import-dialog-section", class_="mdc-dialog__body mdc-dialog__body--scrollable",
+						p(attr!"id"="vocabulary-import-dialog-desc", "Browse through vocabulary packs created by the community"),
+						nav(class_="mdc-list", attr!"id"="import-vocabulary-list")
+					),
+					footer(class_="mdc-dialog__footer",
+						button(class_="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept", "Import"),
 						button(class_="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--cancel", "Cancel")
 					)
 				),

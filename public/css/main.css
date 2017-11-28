@@ -303,16 +303,42 @@ hr {
 	display: flex;
 }
 
-.vocabulary .mdc-fab {
+.vocabulary .fab-group {
 	position: fixed;
-	bottom: 16px;
-	right: 16px;
+	bottom: 0;
+	right: 0;
+	padding: 16px;
+}
+
+.vocabulary .fab-group .mdc-fab {
+	display: block;
+	margin-top: 16px;
+}
+
+#vocabulary-import-pack-button {
+	position: relative;
+	top: 64px;
+	transform: scale(0);
+	transition: top 0.2s ease-out, transform 0.3s ease-out;
+}
+
+.fab-group:hover #vocabulary-import-pack-button {
+	top: 0;
+	transform: scale(1);
+}
+
+#vocabulary-create-pack-button .mdc-fab__icon {
+	transition: transform 0.2s ease-out;
+}
+
+.fab-group:hover #vocabulary-create-pack-button .mdc-fab__icon {
+	transform: rotateZ(90deg);
 }
 
 @media screen and (min-width: 600px) {
-	.vocabulary .mdc-fab {
-		bottom: 64px;
-		right: 64px;
+	.vocabulary .fab-group {
+		padding-bottom: 64px;
+		padding-right: 64px;
 	}
 }
 

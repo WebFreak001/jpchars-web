@@ -135,6 +135,52 @@ function mightBeKanji(c) {
 	return true;
 }
 
+var vocabularyImportDialog = new mdc.dialog.MDCDialog(document.getElementById("vocabulary-import"));
+vocabularyImportDialog.listen("MDCDialog:accept", function () {
+	var list = document.getElementById("vocabulary-import").querySelector(".mdc-list");
+	var lang1, lang2;
+	var vocabulary = [];
+	var working = 0;
+	function importVocabulary(id) {
+		working++;
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/api/vocabulary?id=" + encodeURIComponent(id));
+		xhr.onload = function () {
+			if (xhr.status == 200) {
+				var voc = JSON.parse(xhr.responseText);
+				for (var i = 0; i < voc.length; i++) {
+					var found = false;
+					for (var j = 0; j < vocabulary.length; j++) {
+						if (vocabulary[j]._id == voc[i]._id) {
+							found = true;
+							break;
+						}
+					}
+					if (found)
+						continue;
+					vocabulary.push(voc[i]);
+				}
+			}
+			working--;
+			if (working <= 0)
+				vocabularyModule.creator.showNew(vocabulary, lang1, lang2);
+		};
+		xhr.send();
+	}
+	for (var i = 0; i < list.children.length; i++) {
+		var child = list.children[i];
+		var id = child.getAttribute("data-id");
+		if (!id || !child.querySelector(".mdc-checkbox input").checked)
+			continue;
+		var l1 = child.getAttribute("data-lang1");
+		var l2 = child.getAttribute("data-lang2");
+		if (!lang1) {
+			lang1 = l1;
+			lang2 = l2;
+		}
+		importVocabulary(id);
+	}
+});
 var vocabularyCreationDialog = new mdc.dialog.MDCDialog(document.getElementById("vocabulary-create"));
 vocabularyCreationDialog.listen("MDCDialog:accept", function () {
 	var book = {
@@ -640,9 +686,114 @@ var vocabularyModule = {
 			};
 			xhr.send();
 		},
-		showNew: function () {
+		showNew: function (vocabulary, from, to) {
 			vocabularyCreationDialog.show();
 			document.getElementById("vocadd_name").focus();
+			for (var i = createVocabularyList.children.length - 1; i >= 0; i--) {
+				var child = createVocabularyList.children[i];
+				if (!child.id)
+					child.parentElement.removeChild(child);
+			}
+			var a = document.getElementById("vocadd_lang1");
+			var b = document.getElementById("vocadd_lang2");
+			console.log(from);
+			console.log(to);
+			if (from)
+				a.value = from;
+			else
+				a.value = a.options[0].value;
+			if (to)
+				b.value = to;
+			else
+				b.value = b.options[1].value;
+
+			this.updateLang();
+
+			if (vocabulary && from && to) {
+				vocabulary = vocabulary.sort(function (a, b) {
+					var a1 = a.translations[from];
+					var a2 = a.translations[to];
+					var b1 = b.translations[from];
+					var b2 = b.translations[to];
+					if (a1 == b1 || a2 == b2)
+						return 0;
+					if (a1 < b1)
+						return -1;
+					else if (a1 > b1)
+						return 1;
+					else if (a2 < b2)
+						return -1;
+					else if (a2 > b2)
+						return 1;
+					else return 0;
+				});
+				for (var i = 0; i < vocabulary.length; i++) {
+					this.add(vocabulary[i]._id, vocabulary[i].translations[from], vocabulary[i].translations[to]);
+				}
+			}
+		},
+		showImport: function () {
+			var done = false;
+			var show = function () {
+				if (done) return;
+				done = true;
+				vocabularyImportDialog.show();
+			};
+			var list = document.getElementById("vocabulary-import").querySelector(".mdc-list");
+			while (list.children.length)
+				list.removeChild(list.lastChild);
+
+			setTimeout(show, 100);
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/api/vocabulary/book/all");
+			xhr.onload = function () {
+				var books = JSON.parse(xhr.responseText);
+				function updateDisabled(lang1, lang2) {
+					for (var i = 0; i < list.children.length; i++) {
+						var child = list.children[i];
+						if (!child.getAttribute("data-id"))
+							continue;
+						var l1 = child.getAttribute("data-lang1");
+						var l2 = child.getAttribute("data-lang2");
+						var enabled = (l1 == lang1 && l2 == lang2) || (l1 == lang2 && l2 == lang1);
+						child.querySelector(".mdc-checkbox input").disabled = !enabled;
+					}
+				}
+				function uncheckUpdate() {
+					if (!list.querySelector(".mdc-checkbox input:checked")) {
+						var cbs = list.querySelectorAll(".mdc-checkbox input");
+						for (var i = 0; i < cbs.length; i++)
+							cbs[i].disabled = false;
+					}
+				}
+				for (var i = 0; i < books.length; i++) {
+					var li = document.createElement("li");
+					li.setAttribute("data-lang1", books[i].lang1);
+					li.setAttribute("data-lang2", books[i].lang2);
+					li.setAttribute("data-id", books[i]._id);
+					li.className = "mdc-list-item";
+					var cb = document.getElementById("checkbox-template").cloneNode(true);
+					cb.className = "mdc-list-item__start-detail mdc-checkbox";
+					cb.querySelector("input").onchange = function (li) {
+						if (this.checked)
+							updateDisabled(li.getAttribute("data-lang1"), li.getAttribute("data-lang2"));
+						else
+							uncheckUpdate();
+					}.bind(cb.querySelector("input"), li);
+					li.appendChild(cb);
+					var text = document.createElement("span");
+					text.className = "mdc-list-item__text";
+					text.textContent = books[i].name;
+					var textSecondary = document.createElement("span");
+					textSecondary.className = "mdc-list-item__text__secondary";
+					textSecondary.textContent = books[i].vocabulary + " vocabulary packed by " + shortenUserhash(books[i].creator);
+					text.appendChild(textSecondary);
+					li.appendChild(text);
+					list.appendChild(li);
+				}
+				show();
+			};
+			xhr.send();
 		},
 		updateLang: function () {
 			var a = document.getElementById("vocadd_lang1");
