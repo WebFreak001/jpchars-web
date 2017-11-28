@@ -259,6 +259,14 @@ function updateUsernamePreview() {
 		usernamePreview.textContent = "Offline Mode";
 }
 
+function shortenUserhash(userhash) {
+	var pound = userhash.indexOf("#");
+	if (pound == -1)
+		return userhash;
+	else
+		return userhash.substr(0, pound + 1 + 5);
+}
+
 function expandLanguage(id) {
 	return {
 		en: "English",
