@@ -12,7 +12,6 @@ html
 		link(rel="stylesheet", href="/material-components-web/dist/material-components-web.css")
 		link(rel="stylesheet", href="/css/main.css?" ~ ("public/css/main.css").getFileInfo.timeModified.stdTime.to!string(16))
 		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
-		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 	body
 		- import modules.imodule;
 		aside.mdc-persistent-drawer
