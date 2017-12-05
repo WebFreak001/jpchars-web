@@ -73,6 +73,8 @@ function makeKanjiImage(kanji) {
 
 loadKanjiStrokes();
 
+var reqAnimationFrame = requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame || oRequestAnimationFrame || function (cb) { setTimeout(cb, 16); };
+
 var kanjiMeanings;
 
 function loadKanjiMeanings() {
@@ -192,6 +194,7 @@ function makeDrawCanvas(w, h) {
 		strokeAnimations: [],
 		characters: characters,
 		selectedTool: 0,
+		onRepeat: undefined,
 		putAnimation: function (n, char) {
 			if (!char) {
 				obj.strokeAnimations[n] = undefined;
@@ -216,6 +219,10 @@ function makeDrawCanvas(w, h) {
 					continue;
 				found = true;
 				obj.strokeAnimations[i].frame = (obj.strokeAnimations[i].frame + 1) % (obj.strokeAnimations[i].images.length + 1);
+				setTimeout(function () {
+					if (onRepeat)
+						onRepeat(i);
+				});
 			}
 			if (found)
 				obj.queueRedraw();
@@ -225,31 +232,33 @@ function makeDrawCanvas(w, h) {
 				return;
 			clearTimeout(obj.redrawTimer);
 			obj.redrawTimer = setTimeout(function () {
-				context.putImageData(obj.raw, 0, 0, 0, 0, canvas.width, canvas.height);
-				for (var i = 0; i < obj.strokeAnimations.length; i++) {
-					if (!obj.strokeAnimations[i] || !obj.strokeAnimations[i].images.length)
-						continue;
-					var frame = obj.strokeAnimations[i].images[obj.strokeAnimations[i].frame];
-					if (!frame)
-						continue;
-					context.drawImage(frame, (i % w) * s, Math.floor(i / w) * s, s, s);
-				}
-				context.save();
-				context.clearRect(0, canvas.height - 32, canvas.width, 32);
-				context.fillStyle = "black";
-				context.fillRect(0, canvas.height - 32, canvas.width / 2, 32);
-				context.lineWidth = 4;
-				context.strokeStyle = "gray";
-				for (var i = 0; i < 2; i++) {
+				reqAnimationFrame(function () {
+					context.putImageData(obj.raw, 0, 0, 0, 0, canvas.width, canvas.height);
+					for (var i = 0; i < obj.strokeAnimations.length; i++) {
+						if (!obj.strokeAnimations[i] || !obj.strokeAnimations[i].images.length)
+							continue;
+						var frame = obj.strokeAnimations[i].images[obj.strokeAnimations[i].frame];
+						if (!frame)
+							continue;
+						context.drawImage(frame, (i % w) * s, Math.floor(i / w) * s, s, s);
+					}
+					context.save();
+					context.clearRect(0, canvas.height - 32, canvas.width, 32);
+					context.fillStyle = "black";
+					context.fillRect(0, canvas.height - 32, canvas.width / 2, 32);
+					context.lineWidth = 4;
+					context.strokeStyle = "gray";
+					for (var i = 0; i < 2; i++) {
+						context.beginPath();
+						context.rect(canvas.width / 2 * i + 2, canvas.height - 30, canvas.width / 2 - 4, 28);
+						context.stroke();
+					}
+					context.strokeStyle = "red";
 					context.beginPath();
-					context.rect(canvas.width / 2 * i + 2, canvas.height - 30, canvas.width / 2 - 4, 28);
+					context.rect(canvas.width / 2 * obj.selectedTool + 2, canvas.height - 30, canvas.width / 2 - 4, 28);
 					context.stroke();
-				}
-				context.strokeStyle = "red";
-				context.beginPath();
-				context.rect(canvas.width / 2 * obj.selectedTool + 2, canvas.height - 30, canvas.width / 2 - 4, 28);
-				context.stroke();
-				context.restore();
+					context.restore();
+				});
 			}, 10);
 		},
 		clear: function () {
