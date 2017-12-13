@@ -7,13 +7,29 @@ import std.functional;
 import std.random;
 import std.range;
 import std.string;
-import std.string : indexOfAny;
+import std.string : indexOfAny; // conflicts with vibe
+import std.uni;
+import std.utf;
 
 import modules.imodule;
 
 import mongoschema;
 
 import wagomu;
+
+// sync with vocabulary.js
+bool mightBeKanji(dchar c)
+{
+	if (c >= 0x2E80 && c <= 0x2EFF)
+		return true;
+	if (c >= 0x3400 && c <= 0x4DBF)
+		return true;
+	if (c >= 0x4E00 && c <= 0x9FFF)
+		return true;
+	if (c >= 0xF900 && c <= 0xFAFF)
+		return true;
+	return false;
+}
 
 struct UserScore
 {
@@ -72,7 +88,8 @@ void main()
 	router.get("/api/add", &addScore);
 	router.get("/api/kanji", &getKanji);
 	router.get("/api/recognize", &getRecognize);
-	router.get("/api/speedtype", &getSpeedtype);
+	router.get("/api/speedtype", &getSpeedtype!"speedtype");
+	router.get("/api/kanjilearn", &getSpeedtype!"kanjilearn");
 	router.get("/api/vocabulary", &getVocabularyBook);
 	router.post("/api/vocabulary", &postVocabulary);
 	router.get("/api/vocabulary/book/all", &getAllVocabularyBooks);
@@ -180,12 +197,14 @@ void getKanji(scope HTTPServerRequest req, scope HTTPServerResponse res)
 		res.writeJsonBody(ret.front);
 }
 
-void getSpeedtype(scope HTTPServerRequest req, scope HTTPServerResponse res)
+void getSpeedtype(string type)(scope HTTPServerRequest req, scope HTTPServerResponse res)
 {
 	import modules.vocabulary : Vocabulary, VocabularyBook;
 
 	string user = req.query.get("user", "");
-	enforceBadRequest(user.length, "Username required for speedtyping");
+	enforceBadRequest(user.length, "Username required for " ~ type);
+	int max = req.query.get("max", "200").to!int;
+	enforceBadRequest(max > 0 && max <= 300, "max parameter must be between 0 and 300");
 
 	string lang = req.query.get("lang", "ja");
 	string preview = req.query.get("lang_preview", "en");
@@ -202,16 +221,32 @@ void getSpeedtype(scope HTTPServerRequest req, scope HTTPServerResponse res)
 			string* tr = lang in voc.translations;
 			if (!tr || !tr.length)
 				continue;
-			if (ret.canFind!(a => a[0] == *tr))
+			string trs = *tr;
+			if (ret.canFind!(a => a[0] == trs))
 				continue;
 			string* b = preview in voc.translations;
-			ret ~= [*tr, b ? *b : ""];
+			string bs = b ? *b : "";
+			static if (type == "kanjilearn")
+			{
+				size_t i;
+				size_t[] kanji;
+				foreach (c; trs.byDchar)
+				{
+					if (c.mightBeKanji)
+						kanji ~= i;
+					i++;
+				}
+				if (kanji.length)
+					ret ~= [kanji.to!string ~ "\t" ~ trs, bs];
+			}
+			else
+				ret ~= [trs, bs];
 		}
 	}
 
-	ret.partialShuffle(min(200, ret.length));
+	ret.partialShuffle(min(max, ret.length));
 
-	res.writeJsonBody(ret[0 .. min(200, $)]);
+	res.writeJsonBody(ret[0 .. min(max, $)]);
 }
 
 void postVocabulary(scope HTTPServerRequest req, scope HTTPServerResponse res)
@@ -433,11 +468,13 @@ void loadModules()
 	import modules.kana : Kana;
 	import modules.vocabulary : VocabularyModule;
 	import modules.speedtype : SpeedTypeModule;
+	import modules.kanjilearn : KanjiLearnModule;
 
 	loadedModules ~= new MarkdownModule(TranslatedString(["en" : "Introduction"]),
 			"public/md/home.md");
 	loadedModules ~= VocabularyModule.instance;
 	loadedModules ~= SpeedTypeModule.instance;
+	loadedModules ~= KanjiLearnModule.instance;
 	loadedModules ~= new ModuleSeparator(TranslatedString(["en" : "Kana"]));
 	loadedModules ~= new MarkdownModule(TranslatedString(["en"
 			: "Kana Cheatsheet"]), "public/md/kana-cheatsheet.md");

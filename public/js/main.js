@@ -163,6 +163,10 @@ var timelimitRemaining;
 var timelimitMax;
 var timelimitForce;
 
+function setProgress(elem, progress) {
+	new mdc.linearProgress.MDCLinearProgress(elem).progress = progress;
+}
+
 function setTimelimit(elem, ms, cb, force) {
 	if (!timersEnabled && !force)
 		return;
@@ -258,7 +262,6 @@ function downloadScores() {
 			reloadScores();
 		}
 	}
-	xhr.on
 	xhr.open("GET", "/api/list?user=" + encodeURIComponent(username));
 	xhr.send();
 }

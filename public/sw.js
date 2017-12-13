@@ -1,4 +1,4 @@
-var CACHE_NAME = "v1";
+var CACHE_NAME = "v2";
 
 this.addEventListener("install", function (event) {
 	event.waitUntil(
@@ -14,6 +14,7 @@ this.addEventListener("install", function (event) {
 				"/js/kana_common.js",
 				"/js/kana_rev.js",
 				"/js/kana.js",
+				"/js/kanjilearn.js",
 				"/js/main.js",
 				"/js/score.js",
 				"/js/speedtype.js",

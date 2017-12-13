@@ -208,6 +208,7 @@ function makeDrawCanvas(w, h) {
 			obj.strokeAnimations[n] = {
 				char: char,
 				frame: 0,
+				fresh: true,
 				images: images
 			};
 			return true;
@@ -218,11 +219,16 @@ function makeDrawCanvas(w, h) {
 				if (!obj.strokeAnimations[i])
 					continue;
 				found = true;
-				obj.strokeAnimations[i].frame = (obj.strokeAnimations[i].frame + 1) % (obj.strokeAnimations[i].images.length + 1);
-				setTimeout(function () {
-					if (onRepeat)
-						onRepeat(i);
-				});
+				if (obj.strokeAnimations[i].fresh) {
+					obj.strokeAnimations[i].frame = 0;
+					obj.strokeAnimations[i].fresh = false;
+				}
+				else
+					obj.strokeAnimations[i].frame = (obj.strokeAnimations[i].frame + 1) % (obj.strokeAnimations[i].images.length + 1);
+				reqAnimationFrame(function (i) {
+					if (obj.onRepeat)
+						obj.onRepeat(i);
+				}.bind(obj, i));
 			}
 			if (found)
 				obj.queueRedraw();

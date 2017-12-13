@@ -129,10 +129,17 @@ function validateJapaneseVocabularyInput(s) {
 	return true;
 }
 
+// sync with app.d
 function mightBeKanji(c) {
-	if (c < 0x2E80) return false;
-	if (c > 0x3040 && c < 0x30FF) return false;
-	return true;
+	if (c >= 0x2E80 && c <= 0x2EFF)
+		return true;
+	if (c >= 0x3400 && c <= 0x4DBF)
+		return true;
+	if (c >= 0x4E00 && c <= 0x9FFF)
+		return true;
+	if (c >= 0xF900 && c <= 0xFAFF)
+		return true;
+	return false;
 }
 
 var vocabularyImportDialog = new mdc.dialog.MDCDialog(document.getElementById("vocabulary-import"));
