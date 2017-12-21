@@ -77,6 +77,39 @@ function listProblematic() {
 	return JSON.parse(window.localStorage.getItem("vocabulary.problematic") || "[]");
 }
 
+function addRecent(vocabulary) {
+	var recent = JSON.parse(window.localStorage.getItem("vocabulary.recent") || "[]");
+	var found = false;
+	for (var i = 0; i < recent.length; i++) {
+		if (recent[i].voc[0] == vocabulary[0] && recent[i].voc[1] == vocabulary[1]) {
+			found = true;
+			recent[i].time = new Date().getTime();
+			break;
+		}
+	}
+	if (!found)
+		recent.push({ time: new Date().getTime(), voc: vocabulary });
+	window.localStorage.setItem("vocabulary.recent", JSON.stringify(recent));
+}
+
+var recentMinutes = 120;
+function dropRecentVocabulary(arr) {
+	var ret = [];
+	var recent = JSON.parse(window.localStorage.getItem("vocabulary.recent") || "[]");
+	for (var i = 0; i < arr.length; i++) {
+		var doneRecently = false;
+		for (var j = 0; j < recent.length; j++) {
+			if (new Date() - recent[j].time <= recentMinutes * 60 * 1000 && recent[j].voc[0] == arr[i][0] && recent[j].voc[1] == arr[i][1]) {
+				doneRecently = true;
+				break;
+			}
+		}
+		if (doneRecently) continue;
+		ret.push(arr[i]);
+	}
+	return ret;
+}
+
 function fixProblematicInRandom(problems, array, max, index, important) {
 	for (var i = 0; i < index; i++) {
 		var voc = array[i];
@@ -340,10 +373,10 @@ var vocabularyModule = {
 	showPackSelect: function () {
 		this.packselect.style.display = "block";
 		document.querySelector(".vocabulary .fab-group").style.display = "";
-		setTimeout(function() {
+		setTimeout(function () {
 			document.getElementById("vocabulary-create-pack-button").classList.remove("mdc-fab--exited");
 		}, 20);
-		
+
 	},
 	reloadPacks: function (soft) {
 		var packs = document.getElementById("vocabulary-packs");
@@ -402,20 +435,31 @@ var vocabularyModule = {
 				vocabulary.push.apply(vocabulary, v);
 			}
 		}
+		var origVocabulary = vocabulary;
+		vocabulary = dropRecentVocabulary(vocabulary);
 
 		var currentIndex = vocabulary.length;
-		var problems = listProblematic();
-		var origProblems = problems.length;
 
-		currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, true);
-		currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, false);
+		if (document.getElementById("vocabulary_improv").checked) {
+			var problems = listProblematic();
+			currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, true);
+			currentIndex = fixProblematicInRandom(problems, vocabulary, vocabulary.length - 10, currentIndex, false);
+
+			var problemPercent = 0.4;
+			var minIndex = Math.round(10 * (1 - problemPercent));
+			currentIndex = Math.max(currentIndex, vocabulary.length - minIndex);
+		}
 
 		shuffleArray(vocabulary, currentIndex, 10);
 
 		if (vocabulary.length > 10)
 			vocabulary = vocabulary.slice(-10);
-		if (vocabulary.length == 0)
-			return alert("There is no vocabulary to learn from, create a pack first.");
+		if (vocabulary.length == 0) {
+			if (origVocabulary.length == 0)
+				return alert("There is no vocabulary to learn from, create a pack first.");
+			else
+				return alert("You have learned enough for now. Come back later or manually select vocabulary.");
+		}
 		this.learnVocabulary(vocabulary, 2);
 	},
 	getSelectedVocabulary: function () {
@@ -447,7 +491,7 @@ var vocabularyModule = {
 		this.learn.style.display = "block";
 		this.nextVocabulary();
 		document.getElementById("vocabulary-create-pack-button").classList.add("mdc-fab--exited");
-		setTimeout(function() {
+		setTimeout(function () {
 			document.querySelector(".vocabulary .fab-group").style.display = "none";
 		}, 700);
 	},
@@ -482,6 +526,7 @@ var vocabularyModule = {
 				});
 			}
 			else clearProblematic(this.currentFullVoc);
+			addRecent(this.currentFullVoc);
 			this.total++;
 			confirmBtn.textContent = confirmBtn.getAttribute("confirm-text");
 			partialBtn.disabled = true;

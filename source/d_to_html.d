@@ -333,6 +333,7 @@ alias src = attr!"src";
 alias href = attr!"href";
 alias rel = attr!"rel";
 alias type = attr!"type";
+alias checked = attr!"checked";
 alias minLength = attr!"minLength";
 alias maxLength = attr!"maxLength";
 alias pattern = attr!"pattern";

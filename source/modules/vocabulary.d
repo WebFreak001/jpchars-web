@@ -83,6 +83,18 @@ class VocabularyModule : IModule
 			),
 			section.packselect(
 				button(class_="random mdc-button", "Random Vocabulary", onclick="vocabularyModule.learnRandom()"),
+				div(class_="mdc-form-field",
+					div(class_="mdc-checkbox",
+						input(class_="mdc-checkbox__native-control", attr!"id"="vocabulary_improv", type="checkbox", checked="checked", " "),
+						div(class_="mdc-checkbox__background",
+							svg(class_="mdc-checkbox__checkmark", attr!"viewBox"="0 0 24 24",
+								Element("path")(class_="mdc-checkbox__checkmark__path", attr!"fill"="none", attr!"stroke"="white", attr!"d"="M1.73,12.91 8.1,19.28 22.79,4.59", " ")
+							),
+							div(class_="mdc-checkbox__mixedmark", " ")
+						)
+					),
+					label(for_="vocabulary_improv", "improved reinforcement")
+				),
 				nav(class_="mdc-list mdc-list--dense", attr!"id"="vocabulary-packs", " "),
 				div.actions(
 					button(class_="startab mdc-button multiicons", title="Learn To", onclick="vocabularyModule.learnSelected(0)",
