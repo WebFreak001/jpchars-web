@@ -254,17 +254,36 @@ vocabularyCreationDialog.listen("MDCDialog:accept", function () {
 	if (!book.vocabulary.length)
 		return;
 	function saveVocabularyBook() {
-		var s = JSON.stringify(book);
-		var existing = window.localStorage.getItem("vocabulary.packs") || "";
-		if (!existing || existing == "[]")
-			window.localStorage.setItem("vocabulary.packs", "[" + s + "]");
-		else
-			window.localStorage.setItem("vocabulary.packs", existing.slice(0, -1) + "," + s + "]");
+		var existing = window.localStorage.getItem("vocabulary.packs") || "[]";
+		if (vocabularyCreationDialog.replaceID) {
+			var all = JSON.parse(existing);
+			var found = false;
+			for (var i = 0; i < all.length; i++) {
+				if (all[i]._id == vocabularyCreationDialog.replaceID) {
+					all[i] = book;
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				all.push(book);
+			window.localStorage.setItem("vocabulary.packs", JSON.stringify(all));
+		}
+		else {
+			var s = JSON.stringify(book);
+			if (existing == "[]")
+				window.localStorage.setItem("vocabulary.packs", "[" + s + "]");
+			else
+				window.localStorage.setItem("vocabulary.packs", existing.slice(0, -1) + "," + s + "]");
+		}
 		vocabularyModule.reloadPacks();
 	}
 	if (username) {
 		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/api/vocabulary/book?user=" + encodeURIComponent(username));
+		var suff = "";
+		if (vocabularyCreationDialog.replaceID && !vocabularyCreationDialog.replaceID.startsWith("priv"))
+			suff = "&disown=" + encodeURIComponent(vocabularyCreationDialog.replaceID);
+		xhr.open("POST", "/api/vocabulary/book?user=" + encodeURIComponent(username) + suff);
 		xhr.setRequestHeader("Content-Type", "application/json");
 		xhr.send(JSON.stringify(req));
 		xhr.onloadend = function () {
@@ -283,7 +302,10 @@ vocabularyCreationDialog.listen("MDCDialog:accept", function () {
 			}
 		}
 	}
-	else saveVocabularyBook();
+	else {
+		book._id = "priv" + new Date().getTime() + Math.random().toString(36);
+		saveVocabularyBook();
+	}
 });
 vocabularyCreationDialog.listen("MDCDialog:cancel", function (e) {
 	if (e.explicitOriginalTarget.tagName != "BUTTON")
@@ -390,6 +412,9 @@ var vocabularyModule = {
 			packs.appendChild(nopacks);
 		}
 		for (var i = 0; i < vocabularyPacks.length; i++) {
+			/**
+			 * @type {{_id: string, name: string, lang1: string, lang2: string, vocabluary: {_id: string, date: string, translations: {[index: string]: string}, contributors: string[]}[]}}
+			 */
 			var pack = vocabularyPacks[i];
 			if (soft && packs.querySelector("li[data-id=\"" + pack._id + "\"]"))
 				continue;
@@ -398,7 +423,7 @@ var vocabularyModule = {
 			li.setAttribute("data-id", pack._id);
 			li.setAttribute("data", JSON.stringify(pack));
 			var cb = document.getElementById("checkbox-template").cloneNode(true);
-			cb.className = "mdc-list-item__start-detail mdc-checkbox";
+			cb.className = "mdc-list-item__graphic mdc-checkbox";
 			li.appendChild(cb);
 			var text = document.createElement("span");
 			text.className = "mdc-list-item__text";
@@ -412,6 +437,15 @@ var vocabularyModule = {
 			toLang.className = "lang-to flag-icon flag-icon-squared " + languageIcon(pack.lang2);
 			langPair.appendChild(toLang);
 			text.appendChild(langPair);
+			var editButton = document.createElement("i");
+			editButton.className = "material-icons vocabulary-edit-button";
+			editButton.setAttribute("aria-role", "button");
+			editButton.setAttribute("title", "Edit Vocabulary Pack");
+			editButton.textContent = "edit";
+			editButton.onclick = function (pack) {
+				vocabularyModule.creator.showNew(pack.vocabulary, pack.lang1, pack.lang2, pack._id);
+			}.bind(editButton, pack);
+			text.appendChild(editButton);
 			li.appendChild(text);
 			packs.appendChild(li);
 			if (soft) {
@@ -660,7 +694,7 @@ var vocabularyModule = {
 			item.setAttribute("data-vocabulary-a", a);
 			item.setAttribute("data-vocabulary-b", b);
 			var cb = document.getElementById("checkbox-template").cloneNode(true);
-			cb.className = "mdc-list-item__start-detail mdc-checkbox";
+			cb.className = "mdc-list-item__graphic mdc-checkbox";
 			item.appendChild(cb);
 			var text = document.createElement("span");
 			text.className = "mdc-list-item__text";
@@ -745,7 +779,10 @@ var vocabularyModule = {
 			};
 			xhr.send();
 		},
-		showNew: function (vocabulary, from, to) {
+		/**
+		 * @param {{_id: string, translations: {[index: string]: string}}[]} vocabulary
+		 */
+		showNew: function (vocabulary, from, to, replaceID) {
 			vocabularyCreationDialog.show();
 			document.getElementById("vocadd_name").focus();
 			for (var i = createVocabularyList.children.length - 1; i >= 0; i--) {
@@ -753,6 +790,7 @@ var vocabularyModule = {
 				if (!child.id)
 					child.parentElement.removeChild(child);
 			}
+			vocabularyCreationDialog.replaceID = replaceID;
 			var a = document.getElementById("vocadd_lang1");
 			var b = document.getElementById("vocadd_lang2");
 			console.log(from);
@@ -832,7 +870,7 @@ var vocabularyModule = {
 					li.setAttribute("data-id", books[i]._id);
 					li.className = "mdc-list-item";
 					var cb = document.getElementById("checkbox-template").cloneNode(true);
-					cb.className = "mdc-list-item__start-detail mdc-checkbox";
+					cb.className = "mdc-list-item__graphic mdc-checkbox";
 					cb.querySelector("input").onchange = function (li) {
 						if (this.checked)
 							updateDisabled(li.getAttribute("data-lang1"), li.getAttribute("data-lang2"));

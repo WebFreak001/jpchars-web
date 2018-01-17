@@ -141,10 +141,10 @@ class VocabularyModule : IModule
 					section(attr!"id"="vocabulary-create-dialog-section", class_="mdc-dialog__body mdc-dialog__body--scrollable",
 						p(attr!"id"="vocabulary-create-dialog-desc",
 							"Select from a list of vocabulary and create and publish a custom pack to learn."),
-						div(class_="mdc-textfield name",
-							input(type="text", class_="mdc-textfield__input", attr!"id"="vocadd_name", value="Unnamed Vocabulary Book"),
-							label(attr!"for"="vocadd_name", class_="mdc-textfield__label", "Vocabulary Book Name"),
-							div(class_="mdc-textfield__bottom-line", " ")
+						div(class_="mdc-text-field name",
+							input(type="text", class_="mdc-text-field__input", attr!"id"="vocadd_name", value="Unnamed Vocabulary Book"),
+							label(attr!"for"="vocadd_name", class_="mdc-text-field__label", "Vocabulary Book Name"),
+							div(class_="mdc-text-field__bottom-line", " ")
 						),
 						label("Language 1",
 							select(attr!"id"="vocadd_lang1", onchange="vocabularyModule.creator.updateLang()",
@@ -164,15 +164,15 @@ class VocabularyModule : IModule
 						),
 						nav(class_="mdc-list", attr!"id"="create-vocabulary-list",
 							li(attr!"id"="vocaddentry", class_="mdc-list-item",
-								div(class_="mdc-textfield",
-									input(type="text", class_="mdc-textfield__input", attr!"id"="vocadd_translation1"),
-									label(attr!"for"="vocadd_translation1", class_="mdc-textfield__label", "Translation 1"),
-									div(class_="mdc-textfield__bottom-line", " ")
+								div(class_="mdc-text-field",
+									input(type="text", class_="mdc-text-field__input", attr!"id"="vocadd_translation1"),
+									label(attr!"for"="vocadd_translation1", class_="mdc-text-field__label", "Translation 1"),
+									div(class_="mdc-text-field__bottom-line", " ")
 								),
-								div(class_="mdc-textfield",
-									input(type="text", class_="mdc-textfield__input", attr!"id"="vocadd_translation2"),
-									label(attr!"for"="vocadd_translation2", class_="mdc-textfield__label", "Translation 2"),
-									div(class_="mdc-textfield__bottom-line", " ")
+								div(class_="mdc-text-field",
+									input(type="text", class_="mdc-text-field__input", attr!"id"="vocadd_translation2"),
+									label(attr!"for"="vocadd_translation2", class_="mdc-text-field__label", "Translation 2"),
+									div(class_="mdc-text-field__bottom-line", " ")
 								),
 								button(class_="add material-icons mdc-button mdc-button--raised", title="Add to Vocabulary",
 									attr!"aria-label"="Add", "add", onclick="vocabularyModule.creator.addCurrent()")

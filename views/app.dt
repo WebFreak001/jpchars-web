@@ -12,15 +12,15 @@ html
 		link(rel="stylesheet", href="/material-components-web/dist/material-components-web.css")
 		link(rel="stylesheet", href="/css/main.css?" ~ ("public/css/main.css").getFileInfo.timeModified.stdTime.to!string(16))
 		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
-	body
+	body.mdc-typography
 		- import modules.imodule;
-		aside.mdc-persistent-drawer
-			nav.mdc-persistent-drawer__drawer
-				.mdc-persistent-drawer__toolbar-spacer
+		aside.mdc-drawer.mdc-drawer--persistent
+			nav.mdc-drawer__drawer
+				.mdc-drawer__toolbar-spacer
 				.mdc-list-group
 					nav.mdc-list.modules
-						a.mdc-list-item.mdc-permanent-drawer--selected(href="#home", aria-controls="home", onclick="exitModule()")
-							i.material-icons.mdc-list-item__start-detail(aria-hidden="true") home
+						a.mdc-list-item.mdc-list-item--selected(href="#home", aria-controls="home", onclick="exitModule()")
+							i.material-icons.mdc-list-item__graphic(aria-hidden="true") home
 							| Home
 						- foreach (mod; loadedModules)
 							- if (cast(ModuleSeparator)mod)
@@ -29,23 +29,23 @@ html
 								<nav class="mdc-list modules">
 								- continue;
 							a.mdc-list-item(href="##{mod.id}", aria-controls=mod.id, onclick="loadModule('#{mod.id}')", title=mod.description("en"))
-								i.material-icons.mdc-list-item__start-detail(aria-hidden="true")= mod.icon
+								i.material-icons.mdc-list-item__graphic(aria-hidden="true")= mod.icon
 								|= mod.name("en")
 					nav.mdc-list
 						label.mdc-list-item
-							.mdc-switch.mdc-list-item__start-detail
+							.mdc-switch.mdc-list-item__graphic
 								input.mdc-switch__native-control#speedrun(type="checkbox", onchange="speedrun = this.checked")
 								.mdc-switch__background
 									.mdc-switch__knob
 							| Speedrun Mode
 						label.mdc-list-item
-							.mdc-switch.mdc-list-item__start-detail
+							.mdc-switch.mdc-list-item__graphic
 								input.mdc-switch__native-control#timers(type="checkbox", checked, onchange="timersEnabled = this.checked; if (!this.checked) pauseTimelimit()")
 								.mdc-switch__background
 									.mdc-switch__knob
 							| Timers
 						label.mdc-list-item
-							i.material-icons.mdc-list-item__start-detail(aria-hidden="true") cloud
+							i.material-icons.mdc-list-item__graphic(aria-hidden="true") cloud
 							span#username-preview Offline Mode
 					.copyright
 						div: a(href="https://github.com/WebFreak001/jpchars-web") Source Code
@@ -57,7 +57,7 @@ html
 			.mdc-toolbar.mdc-elevation--z4
 				.mdc-toolbar__row
 					.mdc-toolbar__section.mdc-toolbar__section--align-start
-						button.material-icons.mdc-toolbar__icon--menu menu
+						button.material-icons.mdc-toolbar__menu-icon menu
 						span.mdc-toolbar__title jpchars-web
 						//nav.mdc-tab-bar.mdc-tab-bar--indicator-accent#scoreTabs(role="tablist", data-mdc-auto-init="MDCTabBar")
 							a.mdc-tab.mdc-tab--active(role="tab", aria-controls="panel-1", href="#panel-1") Item One
@@ -106,10 +106,10 @@ html
 						code bob#banana&calendar-sandwich1329
 					p.
 						If you don't want to sync your progress accross devices simply leave this field blank.
-					div.mdc-textfield
-						input.mdc-textfield__input#username-input(type="text")
-						label.mdc-textfield__label(for="username-input") Username#Hash
-						.mdc-textfield__bottom-line
+					div.mdc-text-field
+						input.mdc-text-field__input#username-input(type="text")
+						label.mdc-text-field__label(for="username-input") Username#Hash
+						.mdc-text-field__bottom-line
 				footer.mdc-dialog__footer
 					button.mdc-button.mdc-dialog__footer__button.mdc-dialog__footer__button--accept Save
 			.mdc-dialog__backdrop

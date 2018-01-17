@@ -94,11 +94,11 @@ body > .content {
 	display: block;
 }
 
-.mdc-textfield.invalid:after {
+.mdc-text-field.invalid:after {
 	background-color: red !important;
 }
 
-.mdc-textfield.invalid > label {
+.mdc-text-field.invalid > label {
 	color: red !important;
 }
 
@@ -168,7 +168,7 @@ figure.score > figcaption > span.details {
 	color: rgba(0, 0, 0, 0.54);
 }
 
-.mdc-switch.mdc-list-item__start-detail {
+.mdc-switch.mdc-list-item__graphic {
 	height: 14px;
 }
 
@@ -190,7 +190,7 @@ figure.score > figcaption > span.details {
 	-webkit-user-select: none;
 }
 
-.mdc-list--dense .mdc-list-item__start-detail {
+.mdc-list--dense .mdc-list-item__graphic {
 	margin-right: 16px;
 }
 
@@ -303,7 +303,7 @@ hr {
 	font-size: 4em;
 }
 
-.kana > .mdc-textfield {
+.kana > .mdc-text-field {
 	width: 100%;
 }
 
@@ -458,6 +458,11 @@ hr {
 	float: left;
 	font-size: 3em;
 	margin-right: 8px;
+}
+
+.vocabulary-edit-button {
+	font-size: 1em;
+	padding: 4px;
 }
 
 

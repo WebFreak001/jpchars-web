@@ -88,10 +88,10 @@ class Kana : IModule
 			reverse ?
 					div.area(" ")
 					:
-					div(class_="mdc-textfield",
-						input(type="text", class_="answer mdc-textfield__input", attr!"id"=(this.id ~ "_input")),
-						label(attr!"for"=(this.id ~ "_input"), class_="mdc-textfield__label", "Representation"),
-						div(class_="mdc-textfield__bottom-line", " ")
+					div(class_="mdc-text-field",
+						input(type="text", class_="answer mdc-text-field__input", attr!"id"=(this.id ~ "_input")),
+						label(attr!"for"=(this.id ~ "_input"), class_="mdc-text-field__label", "Representation"),
+						div(class_="mdc-text-field__bottom-line", " ")
 					),
 			div.actions(
 				button(attr!"confirm-text"="Confirm", attr!"correct-text"="Correct", class_="confirm mdc-button", "Confirm"),

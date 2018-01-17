@@ -18,11 +18,11 @@ var views = document.getElementById("views");
 function loadPage(id) {
 	window.location.hash = "#" + id;
 	var activePanel = views.querySelector(".view.active");
-	var activeTab = document.querySelector(".modules > a.mdc-permanent-drawer--selected");
+	var activeTab = document.querySelector(".modules > a.mdc-list-item--selected");
 	if (activePanel) {
 		activePanel.classList.remove("active");
 		activePanel.setAttribute("aria-hidden", "true");
-		activeTab.classList.remove("mdc-permanent-drawer--selected");
+		activeTab.classList.remove("mdc-list-item--selected");
 	}
 	var newActivePanel = document.getElementById(id);
 	var newActiveTab = document.querySelector(".modules > a[aria-controls=" + id + "]");
@@ -30,7 +30,7 @@ function loadPage(id) {
 		newActivePanel.classList.add("active");
 		if (activePanel)
 			activePanel.setAttribute("aria-hidden", "false");
-		newActiveTab.classList.add("mdc-permanent-drawer--selected");
+		newActiveTab.classList.add("mdc-list-item--selected");
 	}
 
 	if (isSmallScreen())
@@ -307,9 +307,9 @@ function languageIcon(id) {
 
 window.onload = function () {
 	mdc.autoInit();
-	drawer = new mdc.drawer.MDCPersistentDrawer(document.querySelector(".mdc-persistent-drawer"));
+	drawer = new mdc.drawer.MDCPersistentDrawer(document.querySelector(".mdc-drawer--persistent"));
 	drawer.open = !isSmallScreen();
-	document.querySelector(".mdc-toolbar__icon--menu").addEventListener("click", function () {
+	document.querySelector(".mdc-toolbar__menu-icon").addEventListener("click", function () {
 		drawer.open = !drawer.open;
 	});
 
@@ -361,7 +361,7 @@ window.onload = function () {
 	attach(mdc.ripple.MDCRipple, ".mdc-button");
 	attach(mdc.ripple.MDCRipple, ".mdc-ripple-surface");
 	attach(mdc.select.MDCSelect, ".mdc-select");
-	attach(mdc.textfield.MDCTextfield, ".mdc-textfield");
+	attach(mdc.textField.MDCTextField, ".mdc-text-field");
 	document.querySelectorAll(".mdc-linear-progress").forEach(function (field) {
 		var p = mdc.linearProgress.MDCLinearProgress.attachTo(field);
 		p.progress = 0;

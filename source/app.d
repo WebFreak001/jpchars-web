@@ -365,6 +365,21 @@ void postVocabularyBook(scope HTTPServerRequest r, scope HTTPServerResponse res)
 
 	string user = r.query.get("user", "");
 	enforceBadRequest(user.length, "Username required for submitting vocabulary books");
+	auto hashed = user.hashUsername;
+	foreach (disown; r.query.getAll("disown"))
+	{
+		try
+		{
+			auto book = VocabularyBook.tryFindById(disown);
+			if (book.creator != hashed)
+				continue;
+			book.remove();
+		}
+		catch (Exception)
+		{
+		}
+	}
+
 	Json req = r.json;
 	string name = req["name"].get!string;
 	enforceBadRequest(name.length, "Vocabulary books must have a name");
@@ -374,7 +389,7 @@ void postVocabularyBook(scope HTTPServerRequest r, scope HTTPServerResponse res)
 	enforceBadRequest(lang2.length == 2, "Invalid second language");
 	auto vocabulary = req["vocabulary"].deserializeJson!(string[]);
 	VocabularyBook book;
-	book.creator = user.hashUsername;
+	book.creator = hashed;
 	book.name = name;
 	book.lang1 = lang1;
 	book.lang2 = lang2;
