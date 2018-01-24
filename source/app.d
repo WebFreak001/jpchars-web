@@ -81,7 +81,16 @@ void main()
 	auto router = new URLRouter;
 	auto longCache = new HTTPFileServerSettings();
 	longCache.maxAge = 365.days;
+	auto noCache = new HTTPFileServerSettings();
+	noCache.maxAge = 0.msecs;
+	noCache.preWriteCallback = (scope HTTPServerRequest req,
+			scope HTTPServerResponse res, ref string physicalPath) {
+		res.headers.removeAll("Expires");
+		res.headers.removeAll("Cache-Control");
+		res.headers.addField("Cache-Control", "no-cache");
+	};
 	router.get("*", serveStaticFiles("node_modules", longCache));
+	router.get("/sw.js", serveStaticFile("public/sw.js", noCache));
 	router.get("*", serveStaticFiles("public", longCache));
 	router.get("/", &index);
 	router.get("/api/list", &listScores);
