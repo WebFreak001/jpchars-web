@@ -83,7 +83,7 @@ class VocabularyModule : IModule
 			),
 			section.packselect(
 				button(class_="random mdc-button", "Random Vocabulary", onclick="vocabularyModule.learnRandom()"),
-				div(class_="mdc-form-field",
+				div(class_="mdc-form-field", title="When using the Random Vocabulary button recently done vocabulary won't be asked and last failed vocabulary will be guaranteed to be partly included",
 					div(class_="mdc-checkbox",
 						input(class_="mdc-checkbox__native-control", attr!"id"="vocabulary_improv", type="checkbox", checked="checked", " "),
 						div(class_="mdc-checkbox__background",
