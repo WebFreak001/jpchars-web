@@ -64,7 +64,7 @@ function makeKanjiImage(kanji) {
 	var children = "";
 	for (var i = 0; i < kanji.children.length; i++)
 		children += new XMLSerializer().serializeToString(kanji.children[i]);
-	var style = "<defs><style type=\"text/css\"><![CDATA[path{stroke:black;fill:none;stroke-linecap:round;stroke-linejoin:round}]]></style></defs>";
+	var style = "<defs><style type=\"text/css\"><![CDATA[path{stroke:#080;stroke-opacity:0.7;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}]]></style></defs>";
 	var svg = "<svg viewBox=\"0 0 109 109\" width=\"109\" height=\"109\" xmlns=\"http://www.w3.org/2000/svg\">" + style + children + "</svg>";
 	var img = new Image();
 	img.src = "data:image/svg+xml," + encodeURIComponent(svg);
@@ -138,7 +138,7 @@ function loadKanjiFrames(char) {
 				circle.setAttribute("cx", m[1]);
 				circle.setAttribute("cy", m[2]);
 				circle.setAttribute("r", "3");
-				circle.setAttribute("fill", "red");
+				circle.setAttribute("fill", "orange");
 				circle.setAttribute("style", "display:none");
 				paths[i].parentElement.insertBefore(circle, paths[i].nextSibling);
 				entry[1] = circle;
